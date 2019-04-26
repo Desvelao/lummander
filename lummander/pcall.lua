@@ -1,6 +1,25 @@
+--[[
+#Pcall module file
+```lua
+Pcall(function()
+
+end):pass(function()
+    print("Passed!")
+end):fail(function()
+    print("Failed!")
+end)
+```
+]]
+
+--- Pcall
+-- @classmod Pcall
 local Pcall = {}
 Pcall.__index = Pcall
 
+--- Create a Pcall
+-- @tparam table t Check function
+-- @tparam function check Check function
+-- @treturn Pcall
 Pcall.__call = function(t,check)
     return setmetatable({
         fcheck = check,
@@ -9,24 +28,25 @@ Pcall.__call = function(t,check)
     },Pcall)
 end
 
+--- Add pass function
+-- @tparam function fn function to execute if pass the check function
+-- @treturn Pcall
 function Pcall:pass(fn)
     self.fpass = fn
     return self
 end
 
+--- Add fail function
+-- @tparam function fn function to execute if fail the check function
 function Pcall:fail(fn)
     self.ffail = fn
     self:done()
 end
 
+--- Execute check function
 function Pcall:done()
-    local value, err = pcall(self.fcheck)
-    if(err)then self.ffail(err) else self.fpass(value) end
+    local status, err = pcall(self.fcheck)
+    if(not status)then self.ffail(err, status) else self.fpass(err) end
 end
-Pcall = setmetatable(Pcall,Pcall)
 
--- Pcall(function() print('Hi') end)
---     :pass(function(suc) print("SUCCESS",suc) end)
---     :fail(function(err) print("FAIL",err) end)
-
-return Pcall
+return setmetatable(Pcall,Pcall)

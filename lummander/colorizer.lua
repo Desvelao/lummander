@@ -1,7 +1,26 @@
--- local pkgpath = string.gsub(...,'%.','/')
--- print('init luachalk',...)
--- package.path = package.path .. ';' .. pkgpath ..'/?.lua;'
-local colors_codes = require"lummander.colors"
+-- package.path = package.path .. ";" .. pkgpath .."/?.lua;"
+local colors_codes = {
+    reset = 0,
+    black = 30,
+    red = 31,
+    green = 32,
+    yellow = 33,
+    blue = 34,
+    magenta = 35,
+    cyan = 36,
+    white = 37,
+    bgblack = 40,
+    bgred = 41,
+    bggreen = 42,
+    bgyellow = 43,
+    bgblue = 44,
+    bgmagenta = 45,
+    bgcyan = 46,
+    bgwhite = 47,
+    bold = 1,
+    underlined = 4,
+    reversed = 7
+}
 local Colorizer = {}
 Colorizer.__index = Colorizer
 Colorizer.__call = function(cls,...)
@@ -9,14 +28,14 @@ Colorizer.__call = function(cls,...)
 end
 
 local ustring = function(value)
-    return '\u{001b}['..value..'m'
+    return "\u{001b}["..value.."m"
 end
 
 function Colorizer.new(options)
     options = options or {}
     local c = {}
     for color,value in pairs(colors_codes) do
-        if(color ~= 'reset') then
+        if(color ~= "reset") then
             c[color] = function (str)
                 return ustring(colors_codes[color])..str..ustring(colors_codes.reset)
             end
@@ -31,16 +50,14 @@ function Colorizer.new(options)
         for s in string.gmatch(style, "[^%.]+") do
             table.insert(styles, s)
         end
-        local style = ''
+        local style = ""
         for _, sty in ipairs(styles) do
             style = ustring(colors_codes[sty])
         end
         return style..str..ustring(colors_codes.reset)
     end
     c.codes = colors_codes
-    -- return setmetatable(c,Colorizer)
     return c
 end
 
 return Colorizer.new()
--- return Chalk

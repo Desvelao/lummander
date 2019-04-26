@@ -9,11 +9,11 @@ function utils.string.ends_with(str, sw)
 end
 
 function utils.string.split(text, patron)
-    local result = {}
+    local split = {}
     for i in string.gmatch(text, patron) do
-        table.insert(result,i)
+        table.insert(split,i)
     end
-    return result
+    return split
 end
 
 function utils.table.find(array, fn)
@@ -27,24 +27,37 @@ function utils.table.find(array, fn)
     return find
 end
 
+function utils.table.filter(array, fn)
+    local new = {}
+    for i, v in ipairs(array) do
+        if fn(v, i, array) then
+            table.insert(new,v)
+        end
+    end
+    return new
+end
+
 function utils.table.join(array, sep)
-    sep = sep or ''
+    sep = sep or ""
     local join = ""
-    for _,v in ipairs(array) do
-        print(v)
-        join = join .. v .. sep
+    for i,v in ipairs(array) do
+        join = join .. ((i > 1 and sep) or "") .. v
     end
     return join
 end
 
-function utils.table.aprint(array)
-    table.for_each(array,function(v,i) print(v,i) end)
-end
-
 function utils.table.for_each(array, fn)
-    for i,v in ipairs(array) do
+    for i,v in pairs(array) do
         fn(v, i, array)
     end
+end
+
+function utils.table.map(array, fn)
+    local new = {}
+    for i,v in pairs(array) do
+        table.insert(new, fn(v, i, array))
+    end
+    return new
 end
 
 function utils.table.includes(array, value)
@@ -53,20 +66,6 @@ function utils.table.includes(array, value)
         if(v == value) then include = true; break end
     end
     return include
-end
-
-function utils.pairsByKeys(t, f)
-    local a = {}
-    for n in pairs(t) do table.insert(a, n) end
-    table.sort(a, f)
-    local i = 0      -- iterator variable
-    local iter = function ()   -- iterator function
-        i = i + 1
-        if a[i] == nil then return nil
-        else return a[i], t[a[i]]
-        end
-    end
-    return iter
 end
 
 return utils

@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>Command</strong></li>
+  <li><a href="../classes/Lummander.html">Lummander</a></li>
+  <li><a href="../classes/Pcall.html">Pcall</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Command</code></h1>
+<p>Command data</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Command:new">Command:new (command[, config={}[, lummander=""]])</a></td>
+	<td class="summary">Create a command</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:option">Command:option (long, short[, description=""[, transform[, type="normal"[, default]]]])</a></td>
+	<td class="summary">Add a flag option</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:set_alias">Command:set_alias (alias)</a></td>
+	<td class="summary">Set alias for the command</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:action">Command:action (fn)</a></td>
+	<td class="summary">Add action function to Command</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:has_option">Command:has_option (opt)</a></td>
+	<td class="summary">Find a option for the command</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Command:new"></a>
+    <strong>Command:new (command[, config={}[, lummander=""]])</strong>
+    </dt>
+    <dd>
+    Create a command
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">command</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Command command to parse for extract arguments and their requirements.
+        </li>
+        <li><span class="parameter">config</span> Options.
+        <ul>
+        <li><span class="parameter">description</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Command description.
+         (<em>default</em> "")
+        </li>
+        <li><span class="parameter">action</span>
+            <span class="types"><span class="type">function</span></span>
+         Command Action function.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><span class="type">{CommandOptions,...}</span></span>
+         CommandOptions
+        </li>
+        </li></ul>
+        <li><span class="parameter">lummander</span>
+            <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
+         CommandOptions
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Command:option"></a>
+    <strong>Command:option (long, short[, description=""[, transform[, type="normal"[, default]]]])</strong>
+    </dt>
+    <dd>
+    Add a flag option
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">long</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Long flag prefixed by "--".
+        </li>
+        <li><span class="parameter">short</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Short flag prefixed by "-".
+        </li>
+        <li><span class="parameter">description</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Flag option description. Default = ""
+         (<em>default</em> "")
+        </li>
+        <li><span class="parameter">transform</span>
+            <span class="types"><span class="type">function</span></span>
+         Transform paramameter before execute Command action.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">type</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Type flag (normal or flag).
+         (<em>default</em> "normal")
+        </li>
+        <li><span class="parameter">default</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Default value.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Command:set_alias"></a>
+    <strong>Command:set_alias (alias)</strong>
+    </dt>
+    <dd>
+    Set alias for the command
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">alias</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         Alias to set.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Command:action"></a>
+    <strong>Command:action (fn)</strong>
+    </dt>
+    <dd>
+    Add action function to Command
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">function</span></span>
+         Set action function for command.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
+
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">cmd:action(
+   <span class="keyword">function</span>(parsed, command, lum)
+     <span class="comment">-- command logic
+</span>     <span class="comment">-- parse is Parsed
+</span>     <span class="comment">-- command is command itself
+</span>     <span class="comment">-- lum is lummander instance
+</span>     <span class="global">print</span>(<span class="string">"Hello form command"</span>)
+<span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Command:has_option"></a>
+    <strong>Command:has_option (opt)</strong>
+    </dt>
+    <dd>
+    Find a option for the command
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">opt</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         string including - or --
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Option
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-04-26 02:53:28 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
