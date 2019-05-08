@@ -75,6 +75,9 @@ function Lummander:command(command, description, config)
     local cmd = Command.new(command, config, self) -- Create command with config and store it in a table
     local cmd_setted = self:find_cmd(cmd:names())
     if(cmd_setted)then self:error("\"" .. cmd.name .. "\" command has name/alias what was setted before in \"".. cmd_setted.name.."\"") end
+    if(config.main)then
+        self:action(cmd, {})
+    end
     table.insert(self.commands, cmd)
     table.sort(self.commands, function(a,b) return a.name < b.name end)
     return cmd
@@ -375,6 +378,7 @@ function List(list)
         }
     })
 end
+
 function optlist_parser(arguments, index, list)
     list = list or List()
     if (arguments[index] and not utils.string.starts_with(arguments[index],"-")) then

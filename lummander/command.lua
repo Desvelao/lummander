@@ -31,7 +31,7 @@ function Command.new(command, config, lummander)
         description = config.description or "",
         hide = (not (config.hide == nil) and config.hide) or false,
         alias = config.alias or {},
-        default_args = config.default_args or {},
+        positional_args = config.positional_args or {},
         arguments = {},
         options = {},
         fn = config.action or function(...) end,
@@ -39,13 +39,14 @@ function Command.new(command, config, lummander)
     }
     setmetatable(cmd, Command)
     -- Parse command to extract arguments requirements
-    cmd:parser(command, cmd.default_args)
+    cmd:parser(command, cmd.positional_args)
     assert(cmd.name,"Command name is required")
     if(config.options)then
         utils.table.for_each(config.options,function(opt,i,a)
             cmd:option(opt.long, opt.short, opt.description, opt.transform, opt.type, opt.default)
         end)
     end
+    
     return cmd
 end
 
@@ -64,14 +65,36 @@ end
 -- @tparam[opt] string default Default value.
 -- @treturn Command
 function Command:option(long, short, description, transform, type_opt, default)
-    assert(short,"opt <short> is required for ".. self.name .. " command")
     assert(long,"opt <long> is required for ".. self.name .. " command")
-    if(transform)then assert(type(transform) == "function","opt <transform> is not a funciton for ".. self.name .. " command") end 
+    local config
+    if(type(long) == "table")then
+        config = long
+    else
+        assert(short,"opt <short> is required for ".. self.name .. " command")
+        -- if(transform)then assert(type(transform) == "function","opt <transform> is not a function for ".. self.name .. " command") end 
+        config = {long = long, short = short, description = description, transform = transform, type = type_opt, default = default}
+    end
     -- Command Option
     -- @type CommandOption
-    local option = self:option_creator({long = long, short = short, description = description, transform = transform, type = type_opt, default = default})
+    local option = self:option_creator(config)
     table.insert(self.options, option)
     table.sort(self.options, function(a,b) return a.name < b.name end)
+    return self
+end
+
+--- Add a argument description
+-- @tparam string arg_name argument name.
+-- @tparam[opt=""] string description to set in the argument.
+-- @treturn Command
+function Command:argument(arg_name, description, default)
+    assert(arg_name,"argument for ".. self.name .. " command")
+    local argument
+    for k,v in pairs(self.arguments)do
+        if(v == arg_name)then
+            v.description = (not(description == nil) and description) or v.description
+            v.default = (not(default == nil) and default) or v.default
+        end
+    end
     return self
 end
 
@@ -205,19 +228,24 @@ end
 -- @return Arguments parsed with type
 function Command:parser(command, defaults)
     local result = {}
+    defaults = defaults or {}
     local inputs = utils.string.split(command,"%S+")
     utils.table.for_each(inputs, function(input, index)
         local word = input:match("[%w_-]+")
+        local config = defaults[word]
+        if(not(type(config) == "table"))then
+            config = {description = (type(config) == "string" and config) or "", default = nil}
+        end
         if(word == input and index == 1)then -- Command
             self.name = word
         elseif(input == "<" .. word .. ">")then -- Required Argument
-            table.insert(self.arguments, self:argument_creator({name = word, type = "req", default = defaults[word]}))
+            table.insert(self.arguments, self:argument_creator({name = word, type = "req", description = config.description, default = config.default}))
         elseif(input == "[" .. word .. "]")then -- Optional arguments
-            table.insert(self.arguments, self:argument_creator({name = word, type = "opt", default = defaults[word]}))
+            table.insert(self.arguments, self:argument_creator({name = word, type = "opt", description = config.description, default = config.default}))
         elseif(input == "[" .. word .. "...]")then -- Optional List arguments
-            table.insert(self.arguments, self:argument_creator({name = word, type = "optlist", default = defaults[word]}))
+            table.insert(self.arguments, self:argument_creator({name = word, type = "optlist", description = config.description, default = config.default}))
         elseif(input == "[..." .. word .. "]")then -- Optional List arguments
-            table.insert(self.arguments, self:argument_creator({name = word, type = "optlist", default = defaults[word]}))
+            table.insert(self.arguments, self:argument_creator({name = word, type = "optlist", description = config.description, default = config.default}))
         else
             error("Defining command argument. command: ".. command.. " word: "..word)
         end
@@ -229,8 +257,8 @@ end
 -- @param arg <string> Argument name. Default = ""
 -- @param type <table> Argument type. Default = ""
 -- @return Argument creator {name : table}
-function argument_creator(argument, type, default)
-    return {name = argument, type = type, default = default}
+function argument_creator(argument, description, type, default)
+    return {name = argument, description = description, type = type, default = default}
 end
 
 function Command:option_creator(options)
@@ -242,7 +270,7 @@ function Command:option_creator(options)
         type = options.type or "normal",
         default = options.default,
         file = options.file,
-        transform = options.transform or function(param) return param end
+        transform = (type(options.transform) == "function" and options.transform) or function(param) return param end
     }
     return setmetatable(option, {
         __index = {
@@ -280,7 +308,7 @@ function Command:argument_creator(options)
                 return closer.left .. t.name .. closer.right
             end,
             render_extended = function(t)
-                return self.lummander.theme.command.argument.color(t:render()) .. self.lummander.theme.command.description.color(t.default and " (Default: " .. t.default .. ")" or "")
+                return self.lummander.theme.command.argument.color(t:render()) .. self.lummander.theme.command.description.color(t.description and " " .. t.description or "") ..self.lummander.theme.command.description.color(t.default and " (Default: " .. t.default .. ")" or "")
             end,
         }
     })
