@@ -83,7 +83,12 @@ Create a command with:
 
 ```lua
 lum:command(schema, description, config)
+-- or
+lum:command(schema, config)
+-- or
+lum:command(config)
 ```
+
 - <a href="#command-schema">schema</a>: string - command schema
 - description: string or table - command description
 - <a href="#command-config">config</a>: table or nil - command config. Table with <a href="#command-file">fields</a>
@@ -361,11 +366,14 @@ end)
 You can can create a custom theme for your terminal. Styles that you can apply are:
 
 - text color: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`
-- background color: same that text color but with prefix `bg`. ex: `bgred`
+- background color: `bgblack`, `bgred`, `bggreen`, `bgyellow`, `bgblue`, `bgmagenta`, `bgcyan`, `bgwhite`
 - other: `bold`, `underlined` and `reversed`
+
+Use `lum:apply_theme(theme)` to load it.
 
 Example:
 ```lua
+-- mytheme.lua
 return {
     cli = {
         title =  "yellow",

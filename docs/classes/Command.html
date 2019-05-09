@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>Reference</title>
+    <title>Lummander - Simple CLI with Lua</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>ldoc</h1>
+<h1>Lummander</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -40,7 +40,14 @@
 <ul class="nowrap">
   <li><strong>Command</strong></li>
   <li><a href="../classes/Lummander.html">Lummander</a></li>
+  <li><a href="../classes/Parsed.html">Parsed</a></li>
+  <li><a href="../classes/ParsedList.html">ParsedList</a></li>
   <li><a href="../classes/Pcall.html">Pcall</a></li>
+  <li><a href="../classes/ThemeColor.html">ThemeColor</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 
 </div>
@@ -48,7 +55,7 @@
 <div id="content">
 
 <h1>Class <code>Command</code></h1>
-<p>Command data</p>
+<p>Command class</p>
 <p>
 
 </p>
@@ -57,24 +64,28 @@
 <h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Command:new">Command:new (command[, config={}[, lummander=""]])</a></td>
-	<td class="summary">Create a command</td>
+	<td class="name" nowrap><a href="#Command:action">Command:action (fn)</a></td>
+	<td class="summary">Add action function to Command</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Command:option">Command:option (long, short[, description=""[, transform[, type_opt="normal"[, default]]]])</a></td>
+	<td class="name" nowrap><a href="#Command:argument">Command:argument (argname, description, default)</a></td>
+	<td class="summary">Add a argument description</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:has_option">Command:has_option (option)</a></td>
+	<td class="summary">Find a option for the command</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:names">Command:names ()</a></td>
+	<td class="summary">Returns a table with command name and alias</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Command:option">Command:option (long, short[, description=""[, transform[, type_opt="normal"[, default=nil]]]])</a></td>
 	<td class="summary">Add a flag option</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Command:set_alias">Command:set_alias (alias)</a></td>
 	<td class="summary">Set alias for the command</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Command:action">Command:action (fn)</a></td>
-	<td class="summary">Add action function to Command</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Command:has_option">Command:has_option (option)</a></td>
-	<td class="summary">Find a option for the command</td>
 	</tr>
 </table>
 
@@ -86,39 +97,66 @@
 
     <dl class="function">
     <dt>
-    <a name = "Command:new"></a>
-    <strong>Command:new (command[, config={}[, lummander=""]])</strong>
+    <a name = "Command:action"></a>
+    <strong>Command:action (fn)</strong>
     </dt>
     <dd>
-    Create a command
+    Add action function to Command
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">command</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Command command to parse for extract arguments and their requirements.
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">function</span></span>
+         Set action function for command.
         </li>
-        <li><span class="parameter">config</span> Options.
-        <ul>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
+
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">cmd:action(
+   <span class="keyword">function</span>(parsed, command, lummander)
+     <span class="comment">-- command logic
+</span>     <span class="comment">-- parse is Parsed
+</span>     <span class="comment">-- command is command itself
+</span>     <span class="comment">-- lummander is lummander instance
+</span>     <span class="global">print</span>(<span class="string">"Hello from command"</span>)
+<span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Command:argument"></a>
+    <strong>Command:argument (argname, description, default)</strong>
+    </dt>
+    <dd>
+    Add a argument description
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">argname</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         argument name.
+        </li>
         <li><span class="parameter">description</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Command description.
-         (<em>default</em> "")
+         to set in the argument.
         </li>
-        <li><span class="parameter">action</span>
-            <span class="types"><span class="type">function</span></span>
-         Command Action function.
-         (<em>optional</em>)
-        </li>
-        <li><span class="parameter">options</span>
-            <span class="types"><span class="type">{CommandOptions,...}</span></span>
-         CommandOptions
-        </li>
-        </li></ul>
-        <li><span class="parameter">lummander</span>
-            <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
-         CommandOptions
+        <li><span class="parameter">default</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         to set in the argument.
         </li>
     </ul>
 
@@ -136,8 +174,56 @@
 
 </dd>
     <dt>
+    <a name = "Command:has_option"></a>
+    <strong>Command:has_option (option)</strong>
+    </dt>
+    <dd>
+    Find a option for the command
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">option</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         string including - or --
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Option
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Command:names"></a>
+    <strong>Command:names ()</strong>
+    </dt>
+    <dd>
+    Returns a table with command name and alias
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "Command:option"></a>
-    <strong>Command:option (long, short[, description=""[, transform[, type_opt="normal"[, default]]]])</strong>
+    <strong>Command:option (long, short[, description=""[, transform[, type_opt="normal"[, default=nil]]]])</strong>
     </dt>
     <dd>
     Add a flag option
@@ -147,15 +233,15 @@
     <ul>
         <li><span class="parameter">long</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Long flag prefixed by "--".
+         Long flag will be prefixed by "--".
         </li>
         <li><span class="parameter">short</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Short flag prefixed by "-".
+         Short flag will be prefixed by "-".
         </li>
         <li><span class="parameter">description</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Flag option description. Default = ""
+         Flag option description.
          (<em>default</em> "")
         </li>
         <li><span class="parameter">transform</span>
@@ -171,7 +257,7 @@
         <li><span class="parameter">default</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          Default value.
-         (<em>optional</em>)
+         (<em>default</em> nil)
         </li>
     </ul>
 
@@ -186,6 +272,22 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">cmd:option(<span class="string">"optname"</span>, <span class="string">"o"</span>, <span class="string">"Option description"</span>, <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"&gt;"</span> .. value .. <span class="string">"&lt;"</span> <span class="keyword">end</span>, <span class="string">"normal"</span>, <span class="string">"option_default_value"</span>)
+<span class="comment">-- or
+</span>cmd:option({
+   long = <span class="string">"optname"</span>,
+    short = <span class="string">"o"</span>,
+    description = <span class="string">"Option description"</span>,
+    transform = <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"&gt;"</span> .. value .. <span class="string">"&lt;"</span> <span class="keyword">end</span>,
+    <span class="global">type</span> = <span class="string">"normal"</span>,
+    default = <span class="string">"option_default_value"</span>
+})
+<span class="comment">-- you can add multiple options
+</span>cmd:option(<span class="string">"opt1"</span>,...)
+    :option(<span class="string">"opt2"</span>,...)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -217,72 +319,6 @@
 
 
 </dd>
-    <dt>
-    <a name = "Command:action"></a>
-    <strong>Command:action (fn)</strong>
-    </dt>
-    <dd>
-    Add action function to Command
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">function</span></span>
-         Set action function for command.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
-
-
-
-    </ol>
-
-
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">cmd:action(
-   <span class="keyword">function</span>(parsed, command, lum)
-     <span class="comment">-- command logic
-</span>     <span class="comment">-- parse is Parsed
-</span>     <span class="comment">-- command is command itself
-</span>     <span class="comment">-- lum is lummander instance
-</span>     <span class="global">print</span>(<span class="string">"Hello form command"</span>)
-<span class="keyword">end</span>)</pre>
-    </ul>
-
-</dd>
-    <dt>
-    <a name = "Command:has_option"></a>
-    <strong>Command:has_option (option)</strong>
-    </dt>
-    <dd>
-    Find a option for the command
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">option</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         string including - or --
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        Option
-    </ol>
-
-
-
-
-</dd>
 </dl>
 
 
@@ -290,7 +326,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-04-26 03:45:09 </i>
+<i style="float:right;">Last updated 2019-05-09 03:29:37 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

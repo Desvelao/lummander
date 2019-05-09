@@ -1,10 +1,4 @@
---[[
-#Command class file
-```lua
-```
-]]
-
---- Command data
+--- Command class
 -- @classmod Command
 local Command = {}
 
@@ -13,12 +7,15 @@ local utils = require "lummander.utils"
 
 Command.__index = Command
 
---- Create a command
--- @tparam string command Command command to parse for extract arguments and their requirements.
+-- Create a command. This function is called by Lummander.
+-- @tparam string command Command to parse for extract arguments and their requirements.
 -- @tparam[opt={}] table config Options.
 -- @tparam[opt=""] string config.description Command description.
--- @tparam[opt] function config.action Command Action function.
--- @tparam {CommandOptions,...} config.options CommandOptions
+-- @tparam[opt={}] table config.positional_args Command description.
+-- @tparam[opt] {options} config.options CommandOptions
+-- @tparam[opt=false] boolean config.hide Hide from help command
+-- @tparam[opt=false] boolean config.main Set as main cli command
+-- @tparam[opt] function config.action Command action function.
 -- @tparam Lummander lummander CommandOptions
 -- @treturn Command
 function Command.new(command, config, lummander)
@@ -27,7 +24,7 @@ function Command.new(command, config, lummander)
     assert(lummander,"Lummander instance is required")
     -- Create Command table
     local cmd = {
-        name = nil, -- setted on cmd:parser if not raise an error
+        name = nil, -- setted on cmd:__parser if not raise an error
         description = config.description or "",
         hide = (not (config.hide == nil) and config.hide) or false,
         alias = config.alias or {},
@@ -39,31 +36,93 @@ function Command.new(command, config, lummander)
     }
     setmetatable(cmd, Command)
     -- Parse command to extract arguments requirements
-    cmd:parser(command, cmd.positional_args)
+    cmd:__parser(command, cmd.positional_args)
     assert(cmd.name,"Command name is required")
     if(config.options)then
         utils.table.for_each(config.options,function(opt,i,a)
             cmd:option(opt.long, opt.short, opt.description, opt.transform, opt.type, opt.default)
         end)
     end
-    
     return cmd
 end
 
--- function Command:argument(name, description)
---     assert(name,"arg <name> is required for ".. self.name .. " command")
---     table.insert(self.arguments, {name = name, description = description or "", conversor = function(param) return param end})
---     return self
--- end
+--- Add action function to Command
+-- @tparam function fn Set action function for command.
+-- @treturn Command
+-- @usage
+-- cmd:action(
+--    function(parsed, command, lummander)
+--      -- command logic
+--      -- parse is Parsed
+--      -- command is command itself
+--      -- lummander is lummander instance
+--      print("Hello from command")
+-- end)
+function Command:action(fn)
+    assert(fn,"fn <function> is required for ".. self.name .. " command")
+    self.fn = fn
+    return self
+end
+
+--- Add a argument description
+-- @tparam string argname argument name.
+-- @tparam string description to set in the argument.
+-- @tparam string default to set in the argument.
+-- @treturn Command
+function Command:argument(argname, description, default)
+    assert(argname,"argument for ".. self.name .. " command")
+    local argument
+    for k,v in pairs(self.arguments)do
+        if(v == argname)then
+            v.description = (not(description == nil) and description) or v.description
+            v.default = (not(default == nil) and default) or v.default
+        end
+    end
+    return self
+end
+
+--- Find a option for the command
+-- @tparam string option string including - or --
+-- @return Option
+function Command:has_option(option)
+    return utils.table.find(self.options,function(value, index, array)
+        if(value.long == opt or value.short == option) then return true end
+    end)
+end
+
+--- Returns a table with command name and alias
+-- @treturn table
+function Command:names()
+    local names = {self.name}
+    utils.table.for_each(self.alias, function(alias, index, array)
+        table.insert(names, alias)
+    end)
+    return names
+end
 
 --- Add a flag option
--- @tparam string long Long flag prefixed by "--".
--- @tparam string short Short flag prefixed by "-".
--- @tparam[opt=""] string description Flag option description. Default = ""
+-- @tparam string long Long flag will be prefixed by "--".
+-- @tparam string short Short flag will be prefixed by "-".
+-- @tparam[opt=""] string description Flag option description.
 -- @tparam[opt] function transform Transform paramameter before execute Command action.
 -- @tparam[opt="normal"] string type_opt Type flag (normal or flag).
--- @tparam[opt] string default Default value.
+-- @tparam[opt=nil] string default Default value.
 -- @treturn Command
+-- @usage
+--    cmd:option("optname", "o", "Option description", function(value) return ">" .. value .. "<" end, "normal", "option_default_value")
+--    -- or
+--    cmd:option({
+--       long = "optname",
+--        short = "o",
+--        description = "Option description",
+--        transform = function(value) return ">" .. value .. "<" end,
+--        type = "normal",
+--        default = "option_default_value"
+--    })
+--    -- you can add multiple options
+--    cmd:option("opt1",...)
+--        :option("opt2",...)
+
 function Command:option(long, short, description, transform, type_opt, default)
     assert(long,"opt <long> is required for ".. self.name .. " command")
     local config
@@ -82,20 +141,11 @@ function Command:option(long, short, description, transform, type_opt, default)
     return self
 end
 
---- Add a argument description
--- @tparam string arg_name argument name.
--- @tparam[opt=""] string description to set in the argument.
--- @treturn Command
-function Command:argument(arg_name, description, default)
-    assert(arg_name,"argument for ".. self.name .. " command")
-    local argument
-    for k,v in pairs(self.arguments)do
-        if(v == arg_name)then
-            v.description = (not(description == nil) and description) or v.description
-            v.default = (not(default == nil) and default) or v.default
-        end
-    end
-    return self
+-- Execute Command Action
+-- @param ... is parsed table for this command with input message
+-- @return Command Action function value
+function Command:run(...)
+    return self.fn(...)
 end
 
 --- Set alias for the command
@@ -112,8 +162,8 @@ function Command:set_alias(alias)
 end
 
 -- Print Command usage
--- @param boolean flag_usage Prefix messge with "Usage:".
--- @param string lummander_tag Lummander tag.
+-- @tparam boolean flag_usage Prefix messge with "Usage:".
+-- @tparam string lummander_tag Lummander tag.
 function Command:usage(flag_usage, lummander_tag)
     if(self.hide) then return end
     local cmd_prev = ""
@@ -123,7 +173,7 @@ function Command:usage(flag_usage, lummander_tag)
 end
 
 -- Print Command usage extended
--- @param string lummander_tag Lummander tag.
+-- @tparam string lummander_tag Lummander tag.
 function Command:usage_extended(lummander_tag)
     local usage = self.lummander.theme.command.category.color("Usage: ").. self.lummander.theme.command.definition.color((lummander_tag and lummander_tag .." " or "") ..self:usage_cmd()) --.." => " .. self.description .. "\n"
     usage = usage .. self.lummander.theme.command.category.color("\nName: ") .. self.name
@@ -146,7 +196,6 @@ function Command:usage_extended(lummander_tag)
 end
 
 -- Print Command usage cmd
-
 function Command:usage_cmd()
     local usage = self.name .. " "
     if (#self.arguments > 0) then
@@ -160,40 +209,6 @@ function Command:usage_cmd()
         end)
     end
     return usage
-end
-
---- Add action function to Command
--- @tparam function fn Set action function for command.
--- @treturn Command
--- @usage
--- cmd:action(
---    function(parsed, command, lum)
---      -- command logic
---      -- parse is Parsed
---      -- command is command itself
---      -- lum is lummander instance
---      print("Hello form command")
--- end)
-function Command:action(fn)
-    assert(fn,"fn <function> is required for ".. self.name .. " command")
-    self.fn = fn
-    return self
-end
-
---- Find a option for the command
--- @tparam string option string including - or --
--- @return Option
-function Command:has_option(option)
-    return utils.table.find(self.options,function(value, index, array)
-        if(value.long == opt or value.short == option) then return true end
-    end)
-end
-
--- Execute Command Action
--- @param ... is parsed table for this command with input message
--- @return Command Action function value
-function Command:run(...)
-    return self.fn(...)
 end
 
 -- Check parsed table when add a command as default to Lummander
@@ -216,17 +231,8 @@ function Command:check_parsed(parsed)
     return (#required == 0)
 end
 
-function Command:names()
-    local names = {self.name}
-    utils.table.for_each(self.alias, function(alias, index, array)
-        table.insert(names, alias)
-    end)
-    return names
-end
 -- Parse command command
--- @param @req command <string> command to parse.
--- @return Arguments parsed with type
-function Command:parser(command, defaults)
+function Command:__parser(command, defaults)
     local result = {}
     defaults = defaults or {}
     local inputs = utils.string.split(command,"%S+")

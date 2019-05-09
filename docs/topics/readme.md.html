@@ -1,0 +1,554 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Lummander - Simple CLI with Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Lummander</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#_div_id__add_commands_using_lummander__a__Add_command_using_lummander_instance_methods__div_"><div id="add-commands-using-lummander">a) Add command using lummander instance methods</div> </a></li>
+<li><a href="#Command_methods">Command methods </a></li>
+<li><a href="#_div_id__command_option__Command_option__div_"><div id="command-option">Command option</div> </a></li>
+<li><a href="#_div_name___command_action__Command_action__div_"><div name="#command-action">Command action</div> </a></li>
+<li><a href="#b__Add_commands_from_a_directory">b) Add commands from a directory </a></li>
+<li><a href="#Command_examples">Command examples </a></li>
+<li><a href="#3__Parse_input">3. Parse input </a></li>
+<li><a href="#Logs_methods">Logs methods </a></li>
+<li><a href="#Advanced_methods">Advanced methods </a></li>
+<li><a href="#Windows">Windows </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="">
+  <li><strong>readme</strong></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/Command.html">Command</a></li>
+  <li><a href="../classes/Lummander.html">Lummander</a></li>
+  <li><a href="../classes/Parsed.html">Parsed</a></li>
+  <li><a href="../classes/ParsedList.html">ParsedList</a></li>
+  <li><a href="../classes/Pcall.html">Pcall</a></li>
+  <li><a href="../classes/ThemeColor.html">ThemeColor</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>Lummander</h1>
+<p>Create a simple command-line interface (CLI) application with Lua. It's inspired by JavaScript's <a href="https://github.com/tj/commander.js/">commander</a>.</p>
+
+<h1>Index</h1>
+<p>- <a href="#features">Features</a>
+- <a href="#installation">Installation</a>
+- <a href="#usage">Usage</a>
+- <a href="#create-instance">Create a instance</a>
+- <a href="#add-commands">Add commands</a></p>
+
+<pre>
+- &lt;a href=<span class="string">"#add-commands-using-lummander"</span>&gt;a) Add command using lummander instance methods&lt;/a&gt;
+- &lt;a href=<span class="string">"#add-commands-from-directory"</span>&gt;a) Add command from a directory&lt;/a&gt;
+</pre>
+
+<p>- <a href="#parse-input">Parse input</a>
+- <a href="#cli-to-path">Add the CLI to the PATH</a></p>
+
+<h1><div id="features">Features</div></h1>
+<p>- Define required positional arguments, optional or flagged options for a command.
+- Add commands directly to lummander instance or from a folder.</p>
+
+<p><em>Require <a href="https://keplerproject.github.io/luafilesystem/">LuaFileSystem</a></em></p>
+
+<h1><div id="installation">Installation</div></h1>
+
+<h1><div id="usage">Usage</div></h1>
+
+<pre>
+<span class="comment">-- Require "lummander"
+</span><span class="keyword">local</span> Lummander = <span class="global">require</span> <span class="string">"lummander"</span>
+
+<span class="comment">-- Create a lummander instance
+</span><span class="keyword">local</span> lum = Lummander.new{
+        title = <span class="string">"My Custom App"</span>, <span class="comment">-- &lt;string&gt; title for CLI. Default: ""
+</span>        tag = <span class="string">"myapp"</span>, <span class="comment">-- &lt;string&gt; CLI Command to execute your program. Default: "".
+</span>        description = <span class="string">"My App description"</span>, <span class="comment">-- &lt;string&gt; CLI description. Default: ""
+</span>        version = <span class="string">"0.1.1"</span> <span class="comment">-- &lt;string&gt; CLI version. Default: "0.1.0"
+</span>        author = <span class="string">"Myself"</span>, <span class="comment">-- &lt;string&gt; author. Default: ""
+</span>        theme = <span class="string">"acid"</span>, <span class="comment">-- Default = "default". "default" and "acid" are built-in themes
+</span>        flag_prevent_help = <span class="keyword">false</span> <span class="comment">-- &lt;boolean&gt; Prevent help message if not command found. Default: false
+</span>    }
+
+<span class="comment">-- Add commands
+</span>lum:command(<span class="string">"mycmd"</span>, <span class="string">"My command description"</span>)
+    :action(<span class="keyword">function</span>(parsed, command, lum)
+        <span class="global">print</span>(<span class="string">"You activated <code>mycmd</code> command"</span>)
+    <span class="keyword">end</span>)
+
+lum:command(<span class="string">"sum &lt;value1&gt; &lt;value2&gt;"</span>, <span class="string">"Sum 2 values"</span>)
+    :option(
+        <span class="string">"option1"</span>,<span class="string">"o"</span>,<span class="string">"Option1 description"</span>,<span class="keyword">nil</span>,<span class="string">"normal"</span>,<span class="string">"option_default_value"</span>)
+    :option(
+        <span class="string">"option2"</span>,<span class="string">"p"</span>,<span class="string">"Option2 description"</span>,<span class="keyword">nil</span>,<span class="string">"normal"</span>,<span class="string">"option2_default_value"</span>)
+    :action(<span class="keyword">function</span>(parsed, command, lum)
+        <span class="global">print</span>(<span class="string">""</span>.. parsed.value1.. <span class="string">"+"</span>..parsed.value2..<span class="string">" = "</span> .. (parsed.value1 + parsed.value2))
+    <span class="keyword">end</span>)
+
+<span class="comment">-- Parse and execute the command wrote
+</span>lum:parse(arg) <span class="comment">-- parse arg and execute if a command was written</span>
+</pre>
+
+
+<h1><div id="create-instance">Create a instance</div></h1>
+
+
+<pre>
+<span class="keyword">local</span> Lummander = <span class="global">require</span><span class="string">"lummander"</span>
+
+<span class="keyword">local</span> lum = Lummander.new{
+    title = <span class="string">"CLI title"</span>,
+    tag = <span class="string">"myapp"</span>, <span class="comment">-- define command to launch this script at terminal
+</span>    description = <span class="string">"My App description"</span>, <span class="comment">-- &lt;string&gt; CLI description. Default: ""
+</span>    version = <span class="string">"0.1.1"</span>, <span class="comment">-- define cli version
+</span>    author = <span class="string">"Myself"</span>, <span class="comment">-- &lt;string&gt; author. Default: ""
+</span>    theme = <span class="string">"acid"</span>, <span class="comment">-- Default = "default". "default" and "acid" are built-in themes
+</span>    flag_prevent_help = <span class="keyword">false</span> <span class="comment">-- prevent show help when :parse() doesn't find a valid command to execute
+</span>}
+</pre>
+
+
+<h1><div id="add-commands">Add commands</div></h1>
+
+<p>Ways to add commands:
+a. Using lummander instance methods
+b. Loading from a folder files what contain a command table defined in lua files.</p>
+
+<p><a name="_div_id__add_commands_using_lummander__a__Add_command_using_lummander_instance_methods__div_"></a></p>
+<h2><div id="add-commands-using-lummander">a) Add command using lummander instance methods</div></h2>
+
+<p>Create a command with:</p>
+
+
+<pre>
+lum:command(schema, description, config)
+<span class="comment">-- or
+</span>lum:command(schema, config)
+<span class="comment">-- or
+</span>lum:command(config)
+</pre>
+
+
+<ul>
+    <li><a href="#command-schema">schema</a>: string - command schema</li>
+    <li>description: string or table - command description</li>
+    <li><a href="#command-config">config</a>: table or nil - command config. Table with <a href="#command-file">fields</a></li>
+</ul>
+
+<p><em>Note: if description is a table, then is treated like config.</em></p>
+
+<h3><div name="#command-schema">Command schema</div></h3>
+<p>It's a string what should have a main command word. It can have required positional arguments (&lt;>) or optionals ([]).</p>
+
+<p>Example: <code>mycmd &lt;required_positional_argument1&gt; &lt;required_positional_argument2&gt; [optional_positional_argument1]</code></p>
+
+<p>Arguments:
+- <argument_name> - Required argument
+- [argument<em>name] - Optional argument
+- [argument</em>name...] - Optional arguments (array)</p>
+
+<p><a name="Command_methods"></a></p>
+<h2>Command methods</h2>
+
+<ul>
+    <li><a href="#command-option"><code>cmd:option(...)</code></a>: add a flagged option.</li>
+    <li><a href="#command-action"><code>cmd:action(fn)</code></a>: set a function to execute for this command.</li>
+</ul>
+
+<p>See docs to see more methods.</p>
+
+<p><a name="_div_id__command_option__Command_option__div_"></a></p>
+<h2><div id="command-option">Command option</div></h2>
+
+<p>Add options to a command with:</p>
+
+<pre>
+<span class="comment">-- only long_name/long and short_name/short are required
+</span>cmd:option(long_name, short_name, description, transform, <span class="global">type</span>, default)
+<span class="comment">-- or
+</span>cmd:option({long, short, description, transform, <span class="global">type</span>, default})
+</pre>
+
+
+<ul>
+    <li>short_name: string - option short name</li>
+    <li>long_name: string - option long name</li>
+    <li>description: string - option description</li>
+    <li>transform: function - transform value received for this option before execute action</li>
+    <li>type: <code>normal</code> or <code>flag</code>. Default <code>normal</code>. <code>flag</code> is true or false. <code>normal</code> can accept a value</li>
+    <li>default: option default value (setted by default to <code>parsed</code> table)</li>
+</ul>
+
+<p>Example:</p>
+
+<pre>
+lum:command(<span class="string">"mycmd"</span>,<span class="string">"My cmd description"</span>)
+    :option(<span class="string">"output"</span>, <span class="string">"o"</span>, <span class="string">"My flagged option description"</span>, <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"./"</span>..value..<span class="string">".txt"</span> <span class="keyword">end</span>, <span class="string">"normal"</span>, <span class="string">"my_default_value"</span>)
+
+<span class="comment">-- You can add multiple options
+</span>lum:command(<span class="string">"mycmd"</span>,<span class="string">"My cmd description"</span>)
+    :option(<span class="string">"output"</span>, <span class="string">"o"</span>, <span class="string">"My flagged option description"</span>, <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"./"</span>..value..<span class="string">".txt"</span> <span class="keyword">end</span>, <span class="string">"normal"</span>, <span class="string">"my_default_value"</span>)
+    :option(<span class="string">"mode"</span>, <span class="string">"m"</span>, <span class="string">"Option mode description"</span>)
+    :option({long = <span class="string">"confirm"</span>, short = <span class="string">"c"</span>, description = <span class="string">"No require confirm"</span>, <span class="global">type</span> = <span class="string">"flag"</span>}) <span class="comment">-- addig with table as first argument</span>
+</pre>
+
+
+<p>You can add so many flagged options like you want.</p>
+
+<p>You can define too this config in a table when you create the command. The example from above would be:</p>
+
+
+<pre>
+lum:command(<span class="string">"mycmd"</span>,<span class="string">"My cmd description"</span>, {
+    options = {
+        {long = <span class="string">"output"</span>, short = <span class="string">"o"</span>, description = <span class="string">"My flagged option description"</span>, transform = <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"./"</span>..value..<span class="string">".txt"</span> <span class="keyword">end</span>, <span class="global">type</span> = <span class="string">"normal"</span>, default = <span class="string">"my_defautl_value"</span>}
+    }
+})
+
+lum:command(<span class="string">"mycmd"</span>,<span class="string">"My cmd description"</span>, {
+    options = {
+        {long = <span class="string">"output"</span>, short = <span class="string">"o"</span>, description = <span class="string">"My flagged option description"</span>, transform = <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"./"</span>..value..<span class="string">".txt"</span> <span class="keyword">end</span>, <span class="global">type</span> = <span class="string">"normal"</span>, default = <span class="string">"my_defautl_value"</span>},
+        {long = <span class="string">"mode"</span>, short = <span class="string">"m"</span>, description = <span class="string">"Option mode description"</span>}
+    }
+})
+
+<span class="comment">-- You can pass command config table in description argument and add to table the description field
+</span>
+lum:command(<span class="string">"mycmd"</span>, {
+    description = <span class="string">"My cmd description"</span>, <span class="comment">-- includes in command config argument
+</span>    options = {
+        {long = <span class="string">"output"</span>, short = <span class="string">"o"</span>, description = <span class="string">"My flagged option description"</span>, transform = <span class="keyword">function</span>(value) <span class="keyword">return</span> <span class="string">"./"</span>..value..<span class="string">".txt"</span> <span class="keyword">end</span>, <span class="global">type</span> = <span class="string">"normal"</span>, default = <span class="string">"my_defautl_value"</span>}
+    }
+})
+</pre>
+
+
+<p><a name="_div_name___command_action__Command_action__div_"></a></p>
+<h2><div name="#command-action">Command action</div></h2>
+
+<p>Set an action to execute when the command is activated.</p>
+
+<pre>
+cmd:action(fn)
+</pre>
+
+
+<ul>
+    <li><code>fn</code> function - trigger a function when command is activated.</li>
+</ul>
+
+
+<pre>
+cmd:action(<span class="keyword">function</span>(parsed, command, lum)
+    <span class="comment">-- parsed: table with command parsed. Include required positional arguments, optional positional arguments, and flagged options (with long name)
+</span>    <span class="comment">-- command: command itself
+</span>    <span class="comment">-- lum: lummander instance
+</span><span class="keyword">end</span>)
+</pre>
+
+
+<p>You can print parsed table with <code>parsed:print()</code> to see values that contains.</p>
+
+<p><a name="b__Add_commands_from_a_directory"></a></p>
+<h2>b) Add commands from a directory</h2>
+
+<p>You can add commands from a folder with .lua files.</p>
+
+
+<pre>
+lum:commands_dir(<span class="string">"folderpath"</span>)
+</pre>
+
+
+<h3><div id="command-file">Command file</div></h3>
+
+<p>The command file interface is:</p>
+
+
+<pre>
+<span class="comment">-- folderpath/mycmd.lua
+</span><span class="keyword">return</span> {
+    schema = <span class="string">"mycmd &lt;req_arg&gt; [opt_arg]"</span>, <span class="comment">-- Schema to parse. Required
+</span>    description = <span class="string">"Command description"</span>, <span class="comment">-- Command description
+</span>    positional_args = { <span class="comment">-- Set description or {description, default} for positional arguments
+</span>        req_arg = <span class="string">"A description for a required argument"</span>,
+        opt_arg = {description = <span class="string">"A description for a optional argument"</span>, default = <span class="string">"default_positional_option_value"</span>},
+    },
+    options = { <span class="comment">-- Add flags arguments
+</span>        {long = <span class="string">"yes"</span>, short = <span class="string">"y"</span>, description = <span class="string">"Accept"</span>, transform : <span class="keyword">function</span>(param) <span class="keyword">end</span>, <span class="global">type</span> = <span class="string">"normal"</span>, default = <span class="string">"default_value"</span>} <span class="comment">-- same command:option("y","yes", "Accept", function(param) end, "normal", "default_value")
+</span>    },
+    hide = <span class="keyword">false</span>, <span class="comment">-- hide from help command
+</span>    main = <span class="keyword">true</span>, <span class="comment">-- do this command default action to CLI if true. Default = nil = false
+</span>    action = <span class="keyword">function</span>(parsed, command, lum) <span class="comment">-- same command:action(function)
+</span>        parsed:<span class="global">print</span>()
+        <span class="keyword">local</span> sufix = <span class="string">""</span>
+        <span class="keyword">if</span>(parsed.yes)<span class="keyword">then</span> sufix = <span class="string">" -y"</span> <span class="keyword">end</span>
+        <span class="global">os</span>.execute(<span class="string">"npm init"</span>..sufix)
+    <span class="keyword">end</span>
+}
+</pre>
+
+
+<p>*Note: only <code>schema</code> is required*</p>
+
+<p><a name="Command_examples"></a></p>
+<h2>Command examples</h2>
+
+
+<pre>
+<span class="comment">-- Command with only a command word.
+</span><span class="comment">-- Argumments:
+</span>    <span class="comment">-- - cmd: time
+</span>
+lum:command(<span class="string">"time"</span>, <span class="string">"Show time"</span>)
+    :action( <span class="comment">-- Join a action to execute
+</span>        <span class="keyword">function</span>(parsed, command, lum) <span class="comment">-- lum is lummander instance
+</span>            <span class="global">print</span>(<span class="global">os</span>.date(<span class="string">"Time is: %I:%M:%S"</span>))
+        <span class="keyword">end</span>
+)
+
+<span class="comment">-- Command with only a command word and a required positional argument.
+</span><span class="comment">-- Argumments:
+</span>    <span class="comment">-- - cmd: hi
+</span>    <span class="comment">-- - req_arg1: name (closed in &lt;&gt; means is required)
+</span>lum:command(<span class="string">"hi &lt;name&gt;"</span>, <span class="string">"Say hi to someone"</span>)
+    :action(
+        <span class="keyword">function</span>(parsed, command, lum)
+            <span class="comment">-- parsed is a table that includes a field called "name" due to &lt;name&gt; at command schema
+</span>            <span class="comment">-- &lt;name&gt; is a required positional argument and is needed to trigger this function
+</span>            <span class="comment">-- parsed = { name }
+</span>            <span class="global">print</span>(<span class="string">"Hi "</span> ..<span class="global">tostring</span>(parsed.name))
+        <span class="keyword">end</span>
+)
+
+<span class="comment">-- Command with only a command word, a required positional argument and an option.
+</span><span class="comment">-- Argumments:
+</span>    <span class="comment">-- - cmd: hi
+</span>    <span class="comment">-- - rea_arg1: name (closed in &lt;&gt; means is required)
+</span>    <span class="comment">-- - option: hello/h
+</span>
+lum:command(<span class="string">"hi &lt;name&gt;"</span>, <span class="string">"Say hello/hi to someone"</span>)
+    :option(<span class="string">"hello"</span>, <span class="string">"h"</span>,<span class="string">"Say hello instead"</span>) <span class="comment">-- include a option. Example: myapp hi MyName -h. Then parsed.hello = true
+</span>    :action(
+        <span class="keyword">function</span>(parsed, command, lum)
+            <span class="comment">-- parsed = {name, hello}
+</span>            <span class="keyword">local</span> saludation = <span class="string">"Hi"</span>
+            <span class="keyword">if</span>(parsed.hello) <span class="keyword">then</span> saludation = <span class="string">"Hello"</span> <span class="keyword">end</span>
+            <span class="global">print</span>(saludation .. <span class="string">" "</span> ..<span class="global">tostring</span>(parsed.name))
+            <span class="comment">-- <code>hi Lummander</code> =&gt; Hi Lummander
+</span>            <span class="comment">-- <code>hi Lummander -h</code> =&gt; Hello Lummander
+</span>            <span class="comment">-- <code>hi Lummander --hello</code> =&gt; Hello Lummander
+</span>        <span class="keyword">end</span>
+)
+
+<span class="comment">-- Command with a command word, 1 required positional argument, 1 optional positional and 1 option
+</span><span class="comment">-- Argumments:
+</span>    <span class="comment">-- - cmd: hi
+</span>    <span class="comment">-- - req_arg1: text (closed in &lt;&gt; means is required)
+</span>    <span class="comment">-- - opt_arg2: othertext (closed in [] means is required)
+</span>    <span class="comment">-- - option: -o, --output
+</span>
+lum:command(<span class="string">"save &lt;text&gt; [othertext]"</span>, <span class="string">"Save a file"</span>)
+    :option(<span class="string">"output"</span>, <span class="string">"o"</span>, <span class="string">"Output path"</span>)
+    :action(
+        <span class="keyword">function</span>(parsed)
+            <span class="comment">-- parsed = {text, othertext, output}
+</span>            <span class="keyword">local</span> default_path = <span class="string">"mypath/file.txt"</span>
+            <span class="keyword">local</span> filename = parsed.output <span class="keyword">or</span> default_path
+            my_write_file_function(filename, parsed.text)
+            <span class="comment">-- <code>save &quot;My text&quot;</code> =&gt; Save a file at default_path
+</span>            <span class="comment">-- <code>save &quot;My text&quot; -o otherpath/myotherfile.txt</code> =&gt; Save a file at "otherpath/myotherfile.txt"
+</span>            <span class="comment">-- <code>save &quot;My text&quot; --output otherpath/myotherfile.txt</code> =&gt; Save a file at "otherpath/myotherfile.txt"
+</span>        <span class="keyword">end</span>
+)
+
+lum:command(<span class="string">"install [packs...]"</span>)
+    :option(<span class="string">"dev"</span>, <span class="string">"d"</span>, <span class="string">"Set install mode"</span>, <span class="keyword">nil</span>, <span class="string">"flag"</span>)
+    :action(<span class="keyword">function</span>(parsed, command, lum)
+        parsed.packs:for_each(<span class="keyword">function</span>(pack) <span class="comment">-- options like array is a table with special methods
+</span>            <span class="comment">-- do something with each pack
+</span>        <span class="keyword">end</span>)
+    <span class="keyword">end</span>)
+</pre>
+
+
+<p><a name="3__Parse_input"></a></p>
+<h2>3. Parse input</h2>
+
+<pre>
+lum:parse(arg) <span class="comment">-- Parse an table like-array (space/comilla separated arguments). <code>arg</code> variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
+</span>
+<span class="comment">-- lummaner.parsed property is created after this</span>
+</pre>
+
+
+<h1>Lummander instance methods</h1>
+
+<p>Note: <code>lum</code> is lummander instance.</p>
+
+<p><a name="Logs_methods"></a></p>
+<h2>Logs methods</h2>
+
+<ul>
+    <li><code>lum.log:info(...)</code>: info log</li>
+    <li><code>lum.log:warn(...)</code>: warning log</li>
+    <li><code>lum.log:error(...)</code>: error log</li>
+</ul>
+
+<p><a name="Advanced_methods"></a></p>
+<h2>Advanced methods</h2>
+
+<ul>
+    <li><code>lum:execute(cmd, [fn])</code>: like os.execute but returns text or callback function with value returned by cmd executed.</li>
+</ul>
+
+
+<pre>
+lum:execute(<span class="string">"cd"</span>, <span class="keyword">function</span>(value)
+    <span class="comment">-- do something with value or after terminal execute is finished
+</span><span class="keyword">end</span>)
+
+<span class="comment">-- this is the same:
+</span><span class="keyword">local</span> value = lum:execute(<span class="string">"cd"</span>)
+<span class="comment">-- do something with value or after termnal execute is finished</span>
+</pre>
+
+
+<ul>
+    <li><p><code>lum:find_cmd(cmd_name)</code>: find a lum command by name</p></li>
+    <li><p><code>lum:action(cmd_name)</code>: set default action. String or Command. Default (help command)</p></li>
+    <li><p><a href="#lummander-apply-theme"><code>lum:apply_theme(theme)</code></a>: apply a theme</p></li>
+    <li><p><a href="#lummander-pcall"><code>lum.pcall(fn)</code></a>: execute a function as pcall()</p></li>
+</ul>
+
+<h3><div name="#lummander-pcall">Lummander.pcall</div></h3>
+
+<ul>
+    <li><code>pcall(fn)</code>: create a pcall instance with a function to check.</li>
+    <li><code>pcall:pass(fn)</code>: function to execute if pcall success.</li>
+    <li><code>pcall:fail(fn)</code>: function to execute if pcall failed. Call pcall:done().</li>
+    <li><code>pcall:done()</code>: execute the pcall</li>
+</ul>
+
+
+<pre>
+lum.<span class="global">pcall</span>(<span class="keyword">function</span>() <span class="comment">-- check function to use in pcall
+</span>    <span class="global">print</span>(<span class="string">"hi"</span>)
+    <span class="global">error</span>(<span class="string">"Error found on this function"</span>)
+<span class="keyword">end</span>)
+    :pass(<span class="keyword">function</span>() <span class="comment">-- execute if check function doesn't raise errors
+</span>    <span class="comment">-- code..
+</span><span class="keyword">end</span>):fail(<span class="keyword">function</span>() <span class="comment">-- execute if chech function raise some error
+</span>    <span class="comment">-- code...
+</span><span class="keyword">end</span>)
+</pre>
+
+
+<h1><div id="lummander-apply-theme">Theme</div></h1>
+
+<p>You can can create a custom theme for your terminal. Styles that you can apply are:</p>
+
+<ul>
+    <li>text color: <code>black</code>, <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, <code>white</code></li>
+    <li>background color: <code>bgblack</code>, <code>bgred</code>, <code>bggreen</code>, <code>bgyellow</code>, <code>bgblue</code>, <code>bgmagenta</code>, <code>bgcyan</code>, <code>bgwhite</code></li>
+    <li>other: <code>bold</code>, <code>underlined</code> and <code>reversed</code></li>
+</ul>
+
+<p>Use <code>lum:apply_theme(theme)</code> to load it.</p>
+
+<p>Example:</p>
+
+<pre>
+<span class="comment">-- mytheme.lua
+</span><span class="keyword">return</span> {
+    cli = {
+        title =  <span class="string">"yellow"</span>,
+        text = <span class="string">"white"</span>,
+        category = <span class="string">"yellow"</span>
+    },
+    command = {
+        definition = <span class="string">"green"</span>,
+        description = <span class="string">"white"</span>,
+        argument = <span class="string">"yellow"</span>,
+        option = <span class="string">"yellow"</span>,
+        category = <span class="string">"red"</span>
+    },
+    primary = <span class="string">"green"</span>,
+    secondary = <span class="string">"red"</span>,
+    success = <span class="string">"green"</span>,
+    warning = <span class="string">"yellow"</span>,
+    <span class="global">error</span> = <span class="string">"red"</span>
+}
+</pre>
+
+
+<p>*Note: if you dont define some style, this will be <code>white</code> by default.*</p>
+
+<h1><div id="cli-to-path">Add the CLI to the PATH</div></h1>
+<p><a name="Windows"></a></p>
+<h2>Windows</h2>
+<p>Create a <code>.bat</code> or <code>.cmd</code> file what contains:</p>
+
+<pre><code> lua "absolute_path_to_your_cli_script.lua" %*
+</code></pre>
+
+
+<p>The name of this file will be CLI command to init your CLI script.</p>
+
+<p>*Note: <code>lua.exe</code> should be in a folder what is in os PATH variable, if not, add the folder path to os PATH variable.*</p>
+
+<p>Example:</p>
+<pre><code> lua "C:/path_to_cli/mycli.lua" %*
+</code></pre>
+
+
+<h1>License</h1>
+<p>MIT</p>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-05-09 03:29:37 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

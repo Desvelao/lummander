@@ -1,18 +1,15 @@
---[[
-#Pcall module file
-```lua
-Pcall(function()
-
-end):pass(function()
-    print("Passed!")
-end):fail(function()
-    print("Failed!")
-end)
-```
-]]
-
 --- Pcall
 -- @classmod Pcall
+-- @usage
+-- Pcall(function()
+--      -- code to try
+-- end):pass(function()
+--      print("Passed!")
+-- end):fail(function()
+--      print("Failed!")
+-- end)
+
+
 local Pcall = {}
 Pcall.__index = Pcall
 

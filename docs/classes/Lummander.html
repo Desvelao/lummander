@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>Reference</title>
+    <title>Lummander - Simple CLI with Lua</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>ldoc</h1>
+<h1>Lummander</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -32,8 +32,10 @@
 
 <h2>Contents</h2>
 <ul>
+<li><a href="#Tables">Tables</a></li>
 <li><a href="#Fields">Fields</a></li>
 <li><a href="#Methods">Methods</a></li>
+<li><a href="#Logging">Logging</a></li>
 </ul>
 
 
@@ -41,7 +43,14 @@
 <ul class="nowrap">
   <li><a href="../classes/Command.html">Command</a></li>
   <li><strong>Lummander</strong></li>
+  <li><a href="../classes/Parsed.html">Parsed</a></li>
+  <li><a href="../classes/ParsedList.html">ParsedList</a></li>
   <li><a href="../classes/Pcall.html">Pcall</a></li>
+  <li><a href="../classes/ThemeColor.html">ThemeColor</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/readme.md.html">readme</a></li>
 </ul>
 
 </div>
@@ -55,6 +64,13 @@
 </p>
 
 
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Lummander.theme">Lummander.theme</a></td>
+	<td class="summary">Theme table</td>
+	</tr>
+</table>
 <h2><a href="#Fields">Fields</a></h2>
 <table class="function_list">
 	<tr>
@@ -77,47 +93,54 @@
 	<td class="summary">Create a Lummander instance</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:command">Lummander:command (command[, description=""[, config={}]])</a></td>
-	<td class="summary">Create a new command</td>
+	<td class="name" nowrap><a href="#Lummander:action">Lummander:action (command, params)</a></td>
+	<td class="summary">Set a default action to execute if any command if found</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:find_cmd">Lummander:find_cmd (cmd_name)</a></td>
-	<td class="summary">Search a command by name</td>
+	<td class="name" nowrap><a href="#Lummander:apply_theme">Lummander:apply_theme (theme)</a></td>
+	<td class="summary">Apply a theme</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Lummander:command">Lummander:command (command[, description=""[, config={}]])</a></td>
+	<td class="summary">Create a new command</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Lummander:commands_dir">Lummander:commands_dir (folderpath)</a></td>
 	<td class="summary">Load command of a directory</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:parse">Lummander:parse (message)</a></td>
-	<td class="summary">Parse message</td>
+	<td class="name" nowrap><a href="#Lummander:execute">Lummander:execute (command, fn)</a></td>
+	<td class="summary">Execute command on shell</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Lummander:find_cmd">Lummander:find_cmd (cmd_name)</a></td>
+	<td class="summary">Search a command by name</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Lummander:help">Lummander:help ([ignore_flag=false])</a></td>
 	<td class="summary">Print Help message</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:action">Lummander:action (command, params)</a></td>
-	<td class="summary">Set a default action to execute if any command if found</td>
+	<td class="name" nowrap><a href="#Lummander:parse">Lummander:parse (message)</a></td>
+	<td class="summary">Parse message</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#Lummander:run">Lummander:run (command)</a></td>
 	<td class="summary">Run main action</td>
 	</tr>
+</table>
+<h2><a href="#Logging">Logging</a></h2>
+<table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:execute">Lummander:execute (command, fn)</a></td>
-	<td class="summary">Execute command on shell</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#Lummander:log">Lummander:log (text)</a></td>
+	<td class="name" nowrap><a href="#Lummander.log.info">Lummander.log.info (text)</a></td>
 	<td class="summary">Log logging</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:warn">Lummander:warn (text)</a></td>
+	<td class="name" nowrap><a href="#Lummander.log.warn">Lummander.log.warn (text)</a></td>
 	<td class="summary">Warning logging</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#Lummander:error">Lummander:error (text)</a></td>
+	<td class="name" nowrap><a href="#Lummander.log.error">Lummander.log.error (text)</a></td>
 	<td class="summary">Error logging</td>
 	</tr>
 </table>
@@ -126,6 +149,115 @@
 <br/>
 
 
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Lummander.theme"></a>
+    <strong>Lummander.theme</strong>
+    </dt>
+    <dd>
+    Theme table
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">cli</span>
+
+
+        <ul>
+        <li><span class="parameter">title</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">text</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">category</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        </li></ul>
+        <li><span class="parameter">command</span>
+
+
+        <ul>
+        <li><span class="parameter">definition</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">description</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">argument</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">option</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">category</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        </li></ul>
+        <li><span class="parameter">primary</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">secondary</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">success</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">warning</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">error</span>
+            <span class="types"><a class="type" href="../classes/ThemeColor.html#">ThemeColor</a></span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
     <h2 class="section-header "><a name="Fields"></a>Fields</h2>
 
     <dl class="function">
@@ -248,6 +380,68 @@
 
 </dd>
     <dt>
+    <a name = "Lummander:action"></a>
+    <strong>Lummander:action (command, params)</strong>
+    </dt>
+    <dd>
+    Set a default action to execute if any command if found
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">command</span>
+            <span class="types"><span class="type">function</span></span>
+         Default action
+        </li>
+        <li><span class="parameter">params</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         Default params passed to Default action function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Lummander:apply_theme"></a>
+    <strong>Lummander:apply_theme (theme)</strong>
+    </dt>
+    <dd>
+    Apply a theme
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">theme</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a> or <span class="type">nil</span></span>
+         Theme to apply. See README.md file
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
+
+
+
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "Lummander:command"></a>
     <strong>Lummander:command (command[, description=""[, config={}]])</strong>
     </dt>
@@ -263,20 +457,171 @@
         </li>
         <li><span class="parameter">description</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         Command description or table as config.
+         (<em>default</em> "")
+        </li>
+        <li><span class="parameter">config</span> Options.
+        <ul>
+        <li><span class="parameter">schema</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Command schema.
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">description</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          Command description.
          (<em>default</em> "")
         </li>
-        <li><span class="parameter">config</span>
-            <span class="types">optional <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
-         CLI Command to execute your program.
+        <li><span class="parameter">positional_args</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         Command description.
          (<em>default</em> {})
         </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><span class="type">{options}</span></span>
+         CommandOptions
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">hide</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Hide from help command
+         (<em>default</em> false)
+        </li>
+        <li><span class="parameter">main</span>
+            <span class="types"><span class="type">boolean</span></span>
+         Set as main cli command
+         (<em>default</em> false)
+        </li>
+        <li><span class="parameter">action</span>
+            <span class="types"><span class="type">function</span></span>
+         Command action function.
+         (<em>optional</em>)
+        </li>
+        </li></ul>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
            <span class="types"><a class="type" href="../classes/Command.html#">Command</a></span>
+
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">lummander:command(<span class="string">"mycmd &lt;req1&gt; [opt1] [...opt_array]"</span>, <span class="string">"My command description"</span>) <span class="comment">-- you can chaining methods to define the command
+</span>
+<span class="comment">-- or create a command with full definition
+</span>lummander:command(<span class="string">"mycmd &lt;req1&gt; [opt1] [...opt_array]"</span>, <span class="string">"My command description"</span>, {
+     positional_args = {
+         req1 = <span class="string">"Description for required argument"</span>,
+         opt1 = {description = <span class="string">"Description for optional argument"</span>, default = <span class="string">"my_default_value"</span>},
+         opt_array = {description = <span class="string">"Description for optional arguments lieke array"</span>, default = {<span class="string">"1"</span>,<span class="string">"2"</span>}}
+     },
+     hide = <span class="keyword">false</span>
+     main = <span class="keyword">false</span>
+     action = <span class="keyword">function</span>(parsed, command, lummander)
+         <span class="comment">--do something here
+</span>     <span class="keyword">end</span>
+})
+
+<span class="comment">-- or
+</span>lummander:command(<span class="string">"mycmd &lt;req1&gt; [opt1] [...opt_array]"</span>, {
+     description = <span class="string">"My command description"</span>,
+     positional_args = {
+         req1 = <span class="string">"Description for required argument"</span>,
+         opt1 = {description = <span class="string">"Description for optional argument"</span>, default = <span class="string">"my_default_value"</span>},
+         opt_array = {description = <span class="string">"Description for optional arguments lieke array"</span>, default = {<span class="string">"1"</span>,<span class="string">"2"</span>}}
+     },
+     hide = <span class="keyword">false</span>
+     main = <span class="keyword">false</span>
+     action = <span class="keyword">function</span>(parsed, command, lummander)
+         <span class="comment">--do something here
+</span>     <span class="keyword">end</span>
+})
+
+<span class="comment">-- or pass all like a table
+</span>lummander:command({
+     shema = <span class="string">"mycmd &lt;req1&gt; [opt1] [...opt_array]"</span>,
+     description = <span class="string">"My command description"</span>  ,
+     positional_args = {
+         req1 = <span class="string">"Description for required argument"</span>,
+         opt1 = {description = <span class="string">"Description for optional argument"</span>, default = <span class="string">"my_default_value"</span>},
+         opt_array = {description = <span class="string">"Description for optional arguments lieke array"</span>, default = {<span class="string">"1"</span>,<span class="string">"2"</span>}}
+     },
+     hide = <span class="keyword">false</span>
+     main = <span class="keyword">false</span>
+     action = <span class="keyword">function</span>(parsed, command, lummander)
+         <span class="comment">--do something here
+</span>     <span class="keyword">end</span>
+})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Lummander:commands_dir"></a>
+    <strong>Lummander:commands_dir (folderpath)</strong>
+    </dt>
+    <dd>
+    Load command of a directory
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">folderpath</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Relative path to load commands (.lua files). Use as require format.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
+
+
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">--"commands_folder" is a folder in same directory that main lua file.
+</span>lummander:commands_dir(<span class="string">"commands_folder"</span>)
+<span class="comment">-- or
+</span>lummander:commands_dir(<span class="string">"commands_folder.subfolder"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Lummander:execute"></a>
+    <strong>Lummander:execute (command, fn)</strong>
+    </dt>
+    <dd>
+    Execute command on shell
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">command</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Shell command to execute
+        </li>
+        <li><span class="parameter">fn</span>
+            <span class="types">optional <span class="type">function</span></span>
+         Callback to execute when the shell command finished
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types">optional <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
 
 
 
@@ -305,65 +650,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types">optional <a class="type" href="../classes/Command.html#">Command</a></span>
-
-
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Lummander:commands_dir"></a>
-    <strong>Lummander:commands_dir (folderpath)</strong>
-    </dt>
-    <dd>
-    Load command of a directory
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">folderpath</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Path to load commands.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
-
-
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Lummander:parse"></a>
-    <strong>Lummander:parse (message)</strong>
-    </dt>
-    <dd>
-    Parse message
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">message</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Message splited by spaces and "". Execute Command if it is found.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">Parsed</span></span>
+           <span class="types"><a class="type" href="../classes/Command.html#">Command</a> or <span class="type">nil</span></span>
 
 
 
@@ -397,29 +684,25 @@
 
 </dd>
     <dt>
-    <a name = "Lummander:action"></a>
-    <strong>Lummander:action (command, params)</strong>
+    <a name = "Lummander:parse"></a>
+    <strong>Lummander:parse (message)</strong>
     </dt>
     <dd>
-    Set a default action to execute if any command if found
+    Parse message
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">command</span>
-            <span class="types"><span class="type">function</span></span>
-         Default action
-        </li>
-        <li><span class="parameter">params</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
-         Default params passed to Default action function
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         Message splited by spaces and "". Execute Command if it is found.
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/Lummander.html#">Lummander</a></span>
+           <span class="types"><a class="type" href="../classes/Parsed.html#">Parsed</a></span>
 
 
 
@@ -458,42 +741,13 @@
 
 
 </dd>
+</dl>
+    <h2 class="section-header "><a name="Logging"></a>Logging</h2>
+
+    <dl class="function">
     <dt>
-    <a name = "Lummander:execute"></a>
-    <strong>Lummander:execute (command, fn)</strong>
-    </dt>
-    <dd>
-    Execute command on shell
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">command</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-         Shell command to execute
-        </li>
-        <li><span class="parameter">fn</span>
-            <span class="types">optional <span class="type">function</span></span>
-         Callback to execute when the shell command finished
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types">optional <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-
-
-
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "Lummander:log"></a>
-    <strong>Lummander:log (text)</strong>
+    <a name = "Lummander.log.info"></a>
+    <strong>Lummander.log.info (text)</strong>
     </dt>
     <dd>
     Log logging
@@ -513,8 +767,8 @@
 
 </dd>
     <dt>
-    <a name = "Lummander:warn"></a>
-    <strong>Lummander:warn (text)</strong>
+    <a name = "Lummander.log.warn"></a>
+    <strong>Lummander.log.warn (text)</strong>
     </dt>
     <dd>
     Warning logging
@@ -534,8 +788,8 @@
 
 </dd>
     <dt>
-    <a name = "Lummander:error"></a>
-    <strong>Lummander:error (text)</strong>
+    <a name = "Lummander.log.error"></a>
+    <strong>Lummander.log.error (text)</strong>
     </dt>
     <dd>
     Error logging
@@ -561,7 +815,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-04-26 03:45:09 </i>
+<i style="float:right;">Last updated 2019-05-09 03:29:37 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -1,22 +1,16 @@
---[[
-#Lummander class file
-
-```lua
-```
-]]
-
 --- Lummander module
 -- @classmod Lummander
 local Lummander = {}
 Lummander.__index = Lummander
 
 local Command = require "lummander.command"
-local utils = require "lummander.utils"
 local Colorizer = require "lummander.colorizer"
-local Parsed = require "lummander.parsed"
-local lfs = require "lfs"
 local Pcall = require"lummander.pcall"
-
+local Parsed = require "lummander.parsed"
+local ThemeColor = require"lummander.themecolor"
+local ParsedList = require"lummander.parsedlist"
+local utils = require "lummander.utils"
+local lfs = require "lfs"
 --- Create a Lummander instance
 -- @tparam table setup Options
 -- @string[opt=""] setup.title Title message for your CLI.
@@ -61,11 +55,154 @@ function Lummander.new(setup)
     return lummander
 end
 
+--- Set a default action to execute if any command if found
+-- @tparam function command Default action
+-- @tparam table params Default params passed to Default action function
+-- @treturn Lummander
+function Lummander:action(command, params)
+    if(type(command) == "string") then command = self:find_cmd(command) end
+    params = params or {}
+    assert(getmetatable(command) == Command, "default command is not an instance of Command")
+    if(command:check_parsed(params)) then
+        self.default_action = function()
+            command:run(params, command, self)
+        end
+        self.default_action_command = command
+    end
+    return self
+end
+
+--- Apply a theme
+-- @tparam table|nil theme Theme to apply. See README.md file
+-- @treturn Lummander
+function Lummander:apply_theme(theme)
+    local base = {
+        cli = {
+            title =  "",
+            text = "",
+            category = ""
+        },
+        command = {
+            definition = "",
+            description = "",
+            argument = "",
+            option = "",
+            category = ""
+        },
+        primary = "",
+        secondary = "",
+        success = "",
+        warning = "",
+        error = ""
+    }
+
+    theme = theme or require"lummander.themes.default"
+
+    if(type(theme) == "string")then
+        self.pcall(function()
+            theme = require("lummander.themes." .. theme)
+        end):fail(function(err)
+            theme = require"lummander.themes.default"
+        end)
+    end
+
+    local default_color = Colorizer["white"]
+    function create_theme(base, theme, fn)
+        utils.table.for_each(base, function(value, index, t)
+            if(type(value) == "string")then
+                base[index] = fn(theme[index], index, t)
+            elseif(type(value) == "table")then
+                base[index] = create_theme(base[index], theme[index], fn)
+            end
+        end)
+        return base
+    end
+    function create_color(color)
+        local colorize = Colorizer[color] or default_color
+        return ThemeColor(colorize, color)
+    end
+    --- Theme table
+    -- @table theme
+    -- @tfield table cli
+    -- @tfield ThemeColor cli.title
+    -- @tfield ThemeColor cli.text
+    -- @tfield ThemeColor cli.category
+    -- @tfield table command
+    -- @tfield ThemeColor command.definition 
+    -- @tfield ThemeColor command.description
+    -- @tfield ThemeColor command.argument
+    -- @tfield ThemeColor command.option
+    -- @tfield ThemeColor command.category
+    -- @tfield ThemeColor primary
+    -- @tfield ThemeColor secondary
+    -- @tfield ThemeColor success
+    -- @tfield ThemeColor warning
+    -- @tfield ThemeColor error
+    self.theme = create_theme(base, theme, function(value, index, t)
+        return create_color(value)
+    end)
+    return self
+end
+
 --- Create a new command
 -- @tparam string command Parse that string to extract arguments names and their requirement.
--- @tparam[opt=""] ?string|table description Command description.
--- @tparam[opt={}] ?table config CLI Command to execute your program.
+-- @tparam[opt=""] ?string|table description Command description or table as config.
+-- @tparam[opt={}] table config Options.
+-- @tparam[opt] string config.schema Command schema.
+-- @tparam[opt=""] string config.description Command description.
+-- @tparam[opt={}] table config.positional_args Command description.
+-- @tparam[opt] {options} config.options CommandOptions
+-- @tparam[opt=false] boolean config.hide Hide from help command
+-- @tparam[opt=false] boolean config.main Set as main cli command
+-- @tparam[opt] function config.action Command action function.
 -- @treturn Command
+-- @usage
+-- lummander:command("mycmd <req1> [opt1] [...opt_array]", "My command description") -- you can chaining methods to define the command
+--
+-- -- or create a command with full definition
+-- lummander:command("mycmd <req1> [opt1] [...opt_array]", "My command description", {
+--      positional_args = {
+--          req1 = "Description for required argument",
+--          opt1 = {description = "Description for optional argument", default = "my_default_value"},
+--          opt_array = {description = "Description for optional arguments lieke array", default = {"1","2"}}
+--      },
+--      hide = false
+--      main = false
+--      action = function(parsed, command, lummander)
+--          --do something here
+--      end
+-- })
+--
+-- -- or
+-- lummander:command("mycmd <req1> [opt1] [...opt_array]", {
+--      description = "My command description",
+--      positional_args = {
+--          req1 = "Description for required argument",
+--          opt1 = {description = "Description for optional argument", default = "my_default_value"},
+--          opt_array = {description = "Description for optional arguments lieke array", default = {"1","2"}}
+--      },
+--      hide = false
+--      main = false
+--      action = function(parsed, command, lummander)
+--          --do something here
+--      end
+-- })
+--
+-- -- or pass all like a table
+-- lummander:command({
+--      shema = "mycmd <req1> [opt1] [...opt_array]",    
+--      description = "My command description"  ,  
+--      positional_args = {
+--          req1 = "Description for required argument",
+--          opt1 = {description = "Description for optional argument", default = "my_default_value"},
+--          opt_array = {description = "Description for optional arguments lieke array", default = {"1","2"}}
+--      },
+--      hide = false
+--      main = false
+--      action = function(parsed, command, lummander)
+--          --do something here
+--      end
+-- })
 function Lummander:command(command, description, config)
     if(type(description) == "table")then
         config = description
@@ -83,23 +220,14 @@ function Lummander:command(command, description, config)
     return cmd
 end
 
---- Search a command by name
--- @tparam string cmd_name Command name to search.
--- @treturn ?Command
-function Lummander:find_cmd(cmd_name)
-    if(type(cmd_name) == 'string') then cmd_name = {cmd_name} end
-    return utils.table.find(self.commands,function(command)
-        local ret
-        utils.table.for_each(cmd_name, function(cmd_iname)
-            if(command.name == cmd_iname or utils.table.includes(command.alias, cmd_iname))then ret = true end
-        end)
-        return ret
-    end)
-end
-
 --- Load command of a directory
--- @tparam string folderpath Path to load commands.
+-- @tparam string folderpath Relative path to load commands (.lua files). Use as require format.
 -- @treturn Lummander
+-- @usage
+-- --"commands_folder" is a folder in same directory that main lua file.
+-- lummander:commands_dir("commands_folder")
+-- -- or
+-- lummander:commands_dir("commands_folder.subfolder")
 function Lummander:commands_dir(folderpath)
     -- local cwd = lfs.currentdir() .. "\\" .. folderpath
     local base_directory = self.root_path .. "\\" .. folderpath
@@ -128,6 +256,49 @@ function Lummander:commands_dir(folderpath)
     --     end
     -- end
     return self
+end
+
+--- Execute command on shell
+-- @tparam string command Shell command to execute
+-- @tparam ?function fn Callback to execute when the shell command finished
+-- @treturn ?string
+function Lummander:execute(command, fn)
+    local handle = io.popen(command)
+    local result = handle:read("*a")
+    handle:close()
+    if(fn) then fn(result) end
+    return result
+end
+
+--- Search a command by name
+-- @tparam string cmd_name Command name to search.
+-- @treturn Command|nil
+function Lummander:find_cmd(cmd_name)
+    if(type(cmd_name) == 'string') then cmd_name = {cmd_name} end
+    return utils.table.find(self.commands,function(command)
+        local ret
+        utils.table.for_each(cmd_name, function(cmd_iname)
+            if(command.name == cmd_iname or utils.table.includes(command.alias, cmd_iname))then ret = true end
+        end)
+        return ret
+    end)
+end
+
+--- Print Help message
+-- @tparam[opt=false] bool ignore_flag ignore_flag Ignore Lummander prevent_help to show hep message.
+-- If prevent_help option is placed in Lummander init, it ignores print Lummander:help() when it is called
+function Lummander:help(ignore_flag)
+    if self.prevent_help and not ignore_flag then return end
+    print(self.theme.cli.title.color(self.title .. " (v" .. self.version .. ")".. ((#self.author > 0 and " by " .. self.author) or "") .. "\n") ..self.theme.cli.category.color("Usage: ")
+    .. self.tag .. " <command> [options] ")
+    if(#self.description > 0)then print(self.theme.cli.category.color("Description: ") .. self.description) end
+    if(self.default_action and self.default_action_command) then print(self.theme.cli.category.color("Default command: ")..self.default_action_command.name.. ((#self.default_action_command.description > 0 and " => " ..self.default_action_command.description) or "")) end
+    self.theme.cli.category("Commands:")
+    utils.table.for_each(self.commands, function(cmd)
+        cmd:usage()
+    end)
+    print()
+    print(self.theme.cli.category.color("Use: ") .. self.theme.command.definition.color(self.tag .. " help <command>") .. " to get more info about that command")
 end
 
 --- Parse message
@@ -174,7 +345,7 @@ function Lummander:parse(message)
             local indexarg = 2
             if (#cmd.arguments > 0) then -- Parse required and optional arguments
                 for _, cmd_arg in ipairs(cmd.arguments) do
-                    parsed[cmd_arg.name] = cmd_arg.default or (cmd_arg.type == "optlist" and List()) or nil
+                    parsed[cmd_arg.name] = cmd_arg.default or (cmd_arg.type == "optlist" and ParsedList()) or nil
                     if (args[indexarg] and not utils.string.starts_with(args[indexarg],"-")) then
                         if(cmd_arg.type == "optlist")then
                             parsed[cmd_arg.name], indexarg = optlist_parser(args, indexarg)
@@ -227,41 +398,6 @@ function Lummander:parse(message)
     return parsed
 end
 
-
---- Print Help message
--- @tparam[opt=false] bool ignore_flag ignore_flag Ignore Lummander prevent_help to show hep message.
--- If prevent_help option is placed in Lummander init, it ignores print Lummander:help() when it is called
-function Lummander:help(ignore_flag)
-    if self.prevent_help and not ignore_flag then return end
-    print(self.theme.cli.title.color(self.title .. " (v" .. self.version .. ")".. ((#self.author > 0 and " by " .. self.author) or "") .. "\n") ..self.theme.cli.category.color("Usage: ")
-    .. self.tag .. " <command> [options] ")
-    if(#self.description > 0)then print(self.theme.cli.category.color("Description: ") .. self.description) end
-    if(self.default_action and self.default_action_command) then print(self.theme.cli.category.color("Default command: ")..self.default_action_command.name.. ((#self.default_action_command.description > 0 and " => " ..self.default_action_command.description) or "")) end
-    self.theme.cli.category("Commands:")
-    utils.table.for_each(self.commands, function(cmd)
-        cmd:usage()
-    end)
-    print()
-    print(self.theme.cli.category.color("Use: ") .. self.theme.command.definition.color(self.tag .. " help <command>") .. " to get more info about that command")
-end
-
---- Set a default action to execute if any command if found
--- @tparam function command Default action
--- @tparam table params Default params passed to Default action function
--- @treturn Lummander
-function Lummander:action(command, params)
-    if(type(command) == "string") then command = self:find_cmd(command) end
-    params = params or {}
-    assert(getmetatable(command) == Command, "default command is not an instance of Command")
-    if(command:check_parsed(params)) then
-        self.default_action = function()
-            command:run(params, command, self)
-        end
-        self.default_action_command = command
-    end
-    return self
-end
-
 --- Run main action
 -- @tparam string command Shell command to execute
 -- @treturn Lummander
@@ -269,81 +405,16 @@ function Lummander:run()
     self.default_action()
     return self
 end
---- Execute command on shell
--- @tparam string command Shell command to execute
--- @tparam ?function fn Callback to execute when the shell command finished
--- @treturn ?string
-function Lummander:execute(command, fn)
-    local handle = io.popen(command)
-    local result = handle:read("*a")
-    handle:close()
-    if(fn) then fn(result) end
-    return result
+
+function tos(tag, text)
+    return tag .. ": " .. text .. "\n"
 end
 
-function Lummander:apply_theme(theme)
-    local base = {
-        cli = {
-            title =  "",
-            text = "",
-            category = ""
-        },
-        command = {
-            definition = "",
-            description = "",
-            argument = "",
-            option = "",
-            category = ""
-        },
-        primary = "",
-        secondary = "",
-        success = "",
-        warning = "",
-        error = ""
-    }
-
-    theme = theme or require"lummander.themes.default"
-
-    if(type(theme) == "string")then
-        self.pcall(function()
-            theme = require("lummander.themes." .. theme)
-        end):fail(function(err)
-            theme = require"lummander.themes.default"
-        end)
-    end
-
-    local default_color = Colorizer["white"]
-    function create_theme(base, theme, fn)
-        utils.table.for_each(base, function(value, index, t)
-            if(type(value) == "string")then
-                base[index] = fn(theme[index], index, t)
-            elseif(type(value) == "table")then
-                base[index] = create_theme(base[index], theme[index], fn)
-            end
-        end)
-        return base
-    end
-    function create_color(color)
-        local colorize = Colorizer[color] or default_color
-        return setmetatable({color = colorize, style = color}, {
-            __call = function(self,text)
-                print(self.color(text))
-            end
-        })
-    end
-    self.theme = create_theme(base, theme, function(value, index, t)
-        return create_color(value)
-    end)
-    return self
-end
-
-function Lummander:tostring()
-    function tos(tag, text)
-        return tag .. ": " .. text .. "\n"
-    end
+function Lummander:tostring()    
     return tos("Title",self.title) .. tos("Description", self.description) .. tos("Tag",self.tag)
         .. tos("Version",self.version) .. tos("Author",self.author)
 end
+
 Lummander.__tag = "Lummander"
 
 function Lummander:error(err)
@@ -370,17 +441,8 @@ function Lummander:__log(tag, color)
     end
 end
 
-function List(list)
-    list = list or {}
-    return setmetatable({},{
-        __index = {
-            for_each = function(t, fn) utils.table.for_each(t, fn) end
-        }
-    })
-end
-
 function optlist_parser(arguments, index, list)
-    list = list or List()
+    list = list or ParsedList()
     if (arguments[index] and not utils.string.starts_with(arguments[index],"-")) then
         table.insert(list, arguments[index])
         return optlist_parser(arguments, index + 1, list)
@@ -402,15 +464,18 @@ Lummander.pcall = Pcall
 
 Lummander.log = {}
 --- Log logging
--- @function Lummander.log
+-- @within Logging
+-- @function Lummander.log.info
 -- @tparam string text Text to show
 Lummander.log.info = Lummander:__log("Info","blue")
 --- Warning logging
--- @function Lummander.warn
+-- @within Logging
+-- @function Lummander.log.warn
 -- @tparam string text Text to show
 Lummander.log.warn = Lummander:__log("Warning","yellow")
 --- Error logging
--- @function Lummander.error
+-- @within Logging
+-- @function Lummander.log.error
 -- @tparam string text Text to show
 Lummander.log.error = Lummander:__log("Error","red")
 
