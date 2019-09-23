@@ -10,6 +10,7 @@ description = {
    license = "MIT"
 }
 dependencies = {
+   "lua>=5.1",
    "lfs>=1.7.0"
 }
 build = {
