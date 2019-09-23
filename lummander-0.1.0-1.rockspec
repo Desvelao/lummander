@@ -5,13 +5,13 @@ source = {
    tag = "v0.1.0"
 }
 description = {
-   summary = [[Create cli]],
+   summary = [[Create a cli. Status: alpha]],
    homepage = "https://github.com/Desvelao/lummander",
    license = "MIT"
 }
 dependencies = {
    "lua>=5.1",
-   "lfs>=1.7.0"
+   "luafilesystem>=1.7.0"
 }
 build = {
    type = "builtin",
