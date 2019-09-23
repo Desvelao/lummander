@@ -1,8 +1,8 @@
 package = "lummander"
-version = "dev-1"
+version = "scm-1"
 source = {
    url = "git+https://github.com/Desvelao/lummander.git",
-   tag = "dev-1"
+   tag = "scm-1"
 }
 description = {
    summary = [[Create cli]],
