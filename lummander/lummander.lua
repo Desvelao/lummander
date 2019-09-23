@@ -230,7 +230,8 @@ end
 -- lummander:commands_dir("commands_folder.subfolder")
 function Lummander:commands_dir(folderpath)
     -- local cwd = lfs.currentdir() .. "\\" .. folderpath
-    local base_directory = self.root_path .. "\\" .. folderpath
+    local separator = package.config:sub(1,1) -- / or \\ to know OS
+    local base_directory = self.root_path .. separator .. folderpath
     for filename,i in lfs.dir(base_directory) do
         if(utils.string.ends_with(filename, ".lua"))then
             local file = folderpath .. "." .. filename:sub(1,-5)
@@ -243,18 +244,6 @@ function Lummander:commands_dir(folderpath)
             end)
         end
     end
-    -- local cwd = io.popen"cd":read"*l" .. "\\" .. folderpath
-    -- for filename in io.popen("dir \"" .. cwd.. "\" /b"):lines() do
-    --     if( utils.string.ends_with(filename, ".lua"))then
-    --         if not pcall(function()
-    --             local data = require(folderpath .. "." .. filename:sub(1,-5))
-    --             self:command(data.command, data.description, data)
-    --         end) then
-    --             self.warn("Command adding from file", folderpath .. "/" .. filename:sub(1,-5))
-    --         end
-            
-    --     end
-    -- end
     return self
 end
 

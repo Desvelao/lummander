@@ -30,7 +30,7 @@ function stringify(t)
     for k, v in pairs(t) do
         table.insert(ordered, k)
     end
-    table.sort(ordered, function(a,b) return a < b end)
+    table.sort(ordered, function(a,b) return tostring(a) < tostring(b) end)
     for _, key in pairs(ordered) do
         local value = t[key]
         if(not (type(value) == "table"))then
