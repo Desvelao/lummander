@@ -20,6 +20,12 @@ Create a simple command-line interface (CLI) application with Lua. It's inspired
 
 # <div id="installation">Installation</div>
 
+- Using Luarocks:
+
+```bash
+luarocks install lummander
+```
+
 # <div id="usage">Usage</div>
 ```lua
 -- Require "lummander"
