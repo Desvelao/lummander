@@ -2,7 +2,7 @@ package = "lummander"
 version = "0.1.0-2"
 source = {
    url = "git://github.com/Desvelao/lummander",
-   tag = "v0.1.0-rev"
+   tag = "v0.1.0-2"
 }
 description = {
    summary = [[Create a cli. Status: alpha]],
