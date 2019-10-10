@@ -2,4 +2,5 @@
 /lua
 /lua_modules
 /.luarocks
+/clitest
 *.src.rock

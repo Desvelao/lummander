@@ -4,12 +4,12 @@ local Lummander = {}
 Lummander.__index = Lummander
 
 local Command = require "lummander.command"
-local Colorizer = require "lummander.colorizer"
+local chalk = require "chalk"
+local ftable = require("ftypes.table")
+local fstring = require("ftypes.string")
 local Pcall = require"lummander.pcall"
 local Parsed = require "lummander.parsed"
 local ThemeColor = require"lummander.themecolor"
-local ParsedList = require"lummander.parsedlist"
-local utils = require "lummander.utils"
 local lfs = require "lfs"
 --- Create a Lummander instance
 -- @tparam table setup Options
@@ -106,9 +106,9 @@ function Lummander:apply_theme(theme)
         end)
     end
 
-    local default_color = Colorizer["white"]
+    local default_color = chalk.white
     function create_theme(base, theme, fn)
-        utils.table.for_each(base, function(value, index, t)
+        ftable.for_each(base, function(value, index, t)
             if(type(value) == "string")then
                 base[index] = fn(theme[index], index, t)
             elseif(type(value) == "table")then
@@ -118,7 +118,7 @@ function Lummander:apply_theme(theme)
         return base
     end
     function create_color(color)
-        local colorize = Colorizer[color] or default_color
+        local colorize = chalk[color] or default_color
         return ThemeColor(colorize, color)
     end
     --- Theme table
@@ -233,7 +233,7 @@ function Lummander:commands_dir(folderpath)
     local separator = package.config:sub(1,1) -- / or \\ to know OS
     local base_directory = self.root_path .. separator .. folderpath
     for filename,i in lfs.dir(base_directory) do
-        if(utils.string.ends_with(filename, ".lua"))then
+        if(fstring.ends_with(filename, ".lua"))then
             local file = folderpath .. "." .. filename:sub(1,-5)
             self.pcall(function()
                 local data = require(file)
@@ -264,10 +264,10 @@ end
 -- @treturn Command|nil
 function Lummander:find_cmd(cmd_name)
     if(type(cmd_name) == 'string') then cmd_name = {cmd_name} end
-    return utils.table.find(self.commands,function(command)
+    return ftable.find(self.commands,function(command)
         local ret
-        utils.table.for_each(cmd_name, function(cmd_iname)
-            if(command.name == cmd_iname or utils.table.includes(command.alias, cmd_iname))then ret = true end
+        ftable.for_each(cmd_name, function(cmd_iname)
+            if(command.name == cmd_iname or ftable.includes(command.alias, cmd_iname))then ret = true end
         end)
         return ret
     end)
@@ -283,7 +283,7 @@ function Lummander:help(ignore_flag)
     if(#self.description > 0)then print(self.theme.cli.category.color("Description: ") .. self.description) end
     if(self.default_action and self.default_action_command) then print(self.theme.cli.category.color("Default command: ")..self.default_action_command.name.. ((#self.default_action_command.description > 0 and " => " ..self.default_action_command.description) or "")) end
     self.theme.cli.category("Commands:")
-    utils.table.for_each(self.commands, function(cmd)
+    ftable.for_each(self.commands, function(cmd)
         cmd:usage()
     end)
     print()
@@ -334,8 +334,8 @@ function Lummander:parse(message)
             local indexarg = 2
             if (#cmd.arguments > 0) then -- Parse required and optional arguments
                 for _, cmd_arg in ipairs(cmd.arguments) do
-                    parsed[cmd_arg.name] = cmd_arg.default or (cmd_arg.type == "optlist" and ParsedList()) or nil
-                    if (args[indexarg] and not utils.string.starts_with(args[indexarg],"-")) then
+                    parsed[cmd_arg.name] = cmd_arg.default or (cmd_arg.type == "optlist" and ftable()) or nil
+                    if (args[indexarg] and not fstring.starts_with(args[indexarg],"-")) then
                         if(cmd_arg.type == "optlist")then
                             parsed[cmd_arg.name], indexarg = optlist_parser(args, indexarg)
                         else
@@ -356,7 +356,7 @@ function Lummander:parse(message)
                 if opt then
                     if (opt.type == "flag") then
                         parsed:setarg(opt.name, true)
-                    elseif (args[ka + 1] and not utils.string.starts_with(args[ka + 1], "-")) then
+                    elseif (args[ka + 1] and not fstring.starts_with(args[ka + 1], "-")) then
                         parsed:setarg(opt.name, opt.transform(args[ka + 1]))
                         ka = ka + 2
                     else
@@ -366,7 +366,7 @@ function Lummander:parse(message)
             end
 
             -- Add default opt to parsed table if that opt is nil (not defined)
-            utils.table.for_each(cmd.options, function(opt, index, array)
+            ftable.for_each(cmd.options, function(opt, index, array)
                 if(not (opt.default == nil) and parsed[opt.name] == nil) then
                     parsed:setarg(opt.name, opt.default)
                 end
@@ -426,21 +426,21 @@ function Lummander:__log(tag, color)
         tag = tag or ""
         local pre = (title and message and "["..title.. "]: ") or ""
         message = message or title
-        print(self.colorizer[color](tag..": ").. pre .. message)
+        print(self.chalk[color](tag..": ").. pre .. message)
     end
 end
 
 function optlist_parser(arguments, index, list)
-    list = list or ParsedList()
-    if (arguments[index] and not utils.string.starts_with(arguments[index],"-")) then
+    list = list or ftable()
+    if (arguments[index] and not fstring.starts_with(arguments[index],"-")) then
         table.insert(list, arguments[index])
         return optlist_parser(arguments, index + 1, list)
     end
     return list, index
 end
---- Colorizer
--- @field colorizer Colorizer
-Lummander.colorizer = Colorizer -- Insert Colorizer to lummander
+--- Chalk
+-- @field chalk Chalk
+Lummander.chalk = chalk -- Insert Chalk to lummander
 
 --- LuaFileSystem
 -- @field lfs LuaFileSystem

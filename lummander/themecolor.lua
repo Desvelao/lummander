@@ -1,6 +1,5 @@
 --- ThemeColor class. Generated internally by Lummander
 -- @classmod ThemeColor
-local Colorizer = require"lummander.colorizer"
 local ThemeColor = {}
 ThemeColor.__index = ThemeColor
 

@@ -1,7 +1,7 @@
 --- Parsed. It's a table with a field by each argument and option defined in found command.
 -- @classmod Parsed
-local Colorizer = require("lummander.colorizer")
-local utils = require("lummander.utils")
+local chalk = require("chalk")
+local ftable = require("ftypes.table")
 local Parsed = {}
 Parsed.__index = Parsed
 
@@ -15,7 +15,7 @@ Parsed.__index = Parsed
 
 function Parsed:setarg(key, value) self[key] = value end
 --- Print Parsed readable table
-function Parsed:print() Colorizer.pwhite(stringify(self).."\n") end
+function Parsed:print() print(chalk.white(stringify(self).."\n")) end
 -- Returns Parsed readable table
 function Parsed:__tostring() stringify(self) end
 
@@ -36,7 +36,7 @@ function stringify(t)
         if(not (type(value) == "table"))then
             str = str .. " " .. key .. "=" .. tostring(value) ..";"
         else
-            str = str .. " " .. key .. "={" .. utils.table.join(value,", ") .. "};"
+            str = str .. " " .. key .. "={" .. ftable.join(value,", ") .. "};"
         end
     end
     return str .. ">"

@@ -8,8 +8,18 @@ Create a simple command-line interface (CLI) application with Lua. It's inspired
 - <a href="#create-instance">Create a instance</a>
 - <a href="#add-commands">Add commands</a>
     - <a href="#add-commands-using-lummander">a) Add command using lummander instance methods</a>
-    - <a href="#add-commands-from-directory">a) Add command from a directory</a>
+        - <a href="#command-schema">Command schema</a>
+        - <a href="#command-option">Command option</a>
+        - <a href="#command-action">Command action</a>
+    - <a href="#add-commands-from-directory">b) Add commands from a directory</a>
+        - <a href="#command-file">Command file</a>
+- <a href="#command-examples">Command examples</a>
 - <a href="#parse-input">Parse input</a>
+- <a href="#lummander-instance-methods">Lummander instance methods</a>
+    - <a href="#lummander-instance-log">Logs methods</a>
+    - <a href="#lummander-instance-advanced">Advanced methods</a>
+    - <a href="#lummander-instance-pcall">Pcall</a>
+- <a href="#lummander-apply-theme">Theme</a>
 - <a href="#cli-to-path">Add the CLI to the PATH</a>
 
 # <div id="features">Features</div>
@@ -32,7 +42,7 @@ luarocks install lummander
 local Lummander = require "lummander"
 
 -- Create a lummander instance
-local lum = Lummander.new{
+local cli = Lummander.new{
         title = "My Custom App", -- <string> title for CLI. Default: ""
         tag = "myapp", -- <string> CLI Command to execute your program. Default: "". 
         description = "My App description", -- <string> CLI description. Default: ""
@@ -43,22 +53,22 @@ local lum = Lummander.new{
     }
 
 -- Add commands
-lum:command("mycmd", "My command description")
-    :action(function(parsed, command, lum)
+cli:command("mycmd", "My command description")
+    :action(function(parsed, command, app)
         print("You activated `mycmd` command")
     end)
 
-lum:command("sum <value1> <value2>", "Sum 2 values")
+cli:command("sum <value1> <value2>", "Sum 2 values")
     :option(
         "option1","o","Option1 description",nil,"normal","option_default_value")
     :option(
         "option2","p","Option2 description",nil,"normal","option2_default_value")
-    :action(function(parsed, command, lum)
+    :action(function(parsed, command, app)
         print("".. parsed.value1.. "+"..parsed.value2.." = " .. (parsed.value1 + parsed.value2))
     end)
 
 -- Parse and execute the command wrote
-lum:parse(arg) -- parse arg and execute if a command was written
+cli:parse(arg) -- parse arg and execute if a command was written
 ```
 
 # <div id="create-instance">Create a instance</div>
@@ -66,7 +76,7 @@ lum:parse(arg) -- parse arg and execute if a command was written
 ```lua
 local Lummander = require"lummander"
 
-local lum = Lummander.new{
+local cli = Lummander.new{
     title = "CLI title",
     tag = "myapp", -- define command to launch this script at terminal
     description = "My App description", -- <string> CLI description. Default: ""
@@ -88,11 +98,11 @@ b. Loading from a folder files what contain a command table defined in lua files
 Create a command with:
 
 ```lua
-lum:command(schema, description, config)
+cli:command(schema, description, config)
 -- or
-lum:command(schema, config)
+cli:command(schema, config)
 -- or
-lum:command(config)
+cli:command(config)
 ```
 
 - <a href="#command-schema">schema</a>: string - command schema
@@ -101,7 +111,7 @@ lum:command(config)
 
 *Note: if description is a table, then is treated like config.*
 
-### <div name="#command-schema">Command schema</div>
+### <div id="command-schema">Command schema</div>
 It's a string what should have a main command word. It can have required positional arguments (<>) or optionals ([]).
 
 Example: `mycmd <required_positional_argument1> <required_positional_argument2> [optional_positional_argument1]`
@@ -137,11 +147,11 @@ cmd:option({long, short, description, transform, type, default})
 
 Example:
 ```lua
-lum:command("mycmd","My cmd description")
+cli:command("mycmd","My cmd description")
     :option("output", "o", "My flagged option description", function(value) return "./"..value..".txt" end, "normal", "my_default_value")
 
 -- You can add multiple options
-lum:command("mycmd","My cmd description")
+cli:command("mycmd","My cmd description")
     :option("output", "o", "My flagged option description", function(value) return "./"..value..".txt" end, "normal", "my_default_value")
     :option("mode", "m", "Option mode description")
     :option({long = "confirm", short = "c", description = "No require confirm", type = "flag"}) -- addig with table as first argument
@@ -152,13 +162,13 @@ You can add so many flagged options like you want.
 You can define too this config in a table when you create the command. The example from above would be:
 
 ```lua
-lum:command("mycmd","My cmd description", {
+cli:command("mycmd","My cmd description", {
     options = {
         {long = "output", short = "o", description = "My flagged option description", transform = function(value) return "./"..value..".txt" end, type = "normal", default = "my_defautl_value"}
     }
 })
 
-lum:command("mycmd","My cmd description", {
+cli:command("mycmd","My cmd description", {
     options = {
         {long = "output", short = "o", description = "My flagged option description", transform = function(value) return "./"..value..".txt" end, type = "normal", default = "my_defautl_value"},
         {long = "mode", short = "m", description = "Option mode description"}
@@ -167,7 +177,7 @@ lum:command("mycmd","My cmd description", {
 
 -- You can pass command config table in description argument and add to table the description field
 
-lum:command("mycmd", {
+cli:command("mycmd", {
     description = "My cmd description", -- includes in command config argument
     options = {
         {long = "output", short = "o", description = "My flagged option description", transform = function(value) return "./"..value..".txt" end, type = "normal", default = "my_defautl_value"}
@@ -185,21 +195,21 @@ cmd:action(fn)
 - `fn` function - trigger a function when command is activated.
 
 ```lua
-cmd:action(function(parsed, command, lum)
+cmd:action(function(parsed, command, app)
     -- parsed: table with command parsed. Include required positional arguments, optional positional arguments, and flagged options (with long name)
     -- command: command itself
-    -- lum: lummander instance
+    -- app: lummander instance
 end)
 ```
 
 You can print parsed table with `parsed:print()` to see values that contains.
 
-## b) Add commands from a directory
+## <div id="add-commands-from-directory">b) Add commands from a directory</div>
 
 You can add commands from a folder with .lua files.
 
 ```lua
-lum:commands_dir("folderpath")
+cli:commands_dir("folderpath")
 ```
 
 ### <div id="command-file">Command file</div>
@@ -220,7 +230,7 @@ return {
     },
     hide = false, -- hide from help command
     main = true, -- do this command default action to CLI if true. Default = nil = false
-    action = function(parsed, command, lum) -- same command:action(function)
+    action = function(parsed, command, app) -- same command:action(function)
         parsed:print()
         local sufix = ""
         if(parsed.yes)then sufix = " -y" end
@@ -231,16 +241,16 @@ return {
 
 *Note: only `schema` is required*
 
-## Command examples
+## <div id="command-examples">Command examples</div>
 
 ```lua
 -- Command with only a command word.
 -- Argumments:
     -- - cmd: time
 
-lum:command("time", "Show time")
+cli:command("time", "Show time")
     :action( -- Join a action to execute
-        function(parsed, command, lum) -- lum is lummander instance
+        function(parsed, command, app) -- app is lummander instance
             print(os.date("Time is: %I:%M:%S"))
         end
 )
@@ -249,9 +259,9 @@ lum:command("time", "Show time")
 -- Argumments:
     -- - cmd: hi
     -- - req_arg1: name (closed in <> means is required)
-lum:command("hi <name>", "Say hi to someone")
+cli:command("hi <name>", "Say hi to someone")
     :action(
-        function(parsed, command, lum)
+        function(parsed, command, app)
             -- parsed is a table that includes a field called "name" due to <name> at command schema
             -- <name> is a required positional argument and is needed to trigger this function
             -- parsed = { name }
@@ -265,10 +275,10 @@ lum:command("hi <name>", "Say hi to someone")
     -- - rea_arg1: name (closed in <> means is required)
     -- - option: hello/h 
 
-lum:command("hi <name>", "Say hello/hi to someone")
+cli:command("hi <name>", "Say hello/hi to someone")
     :option("hello", "h","Say hello instead") -- include a option. Example: myapp hi MyName -h. Then parsed.hello = true 
     :action(
-        function(parsed, command, lum)
+        function(parsed, command, app)
             -- parsed = {name, hello}
             local saludation = "Hi"
             if(parsed.hello) then saludation = "Hello" end
@@ -286,7 +296,7 @@ lum:command("hi <name>", "Say hello/hi to someone")
     -- - opt_arg2: othertext (closed in [] means is required)
     -- - option: -o, --output
 
-lum:command("save <text> [othertext]", "Save a file")
+cli:command("save <text> [othertext]", "Save a file")
     :option("output", "o", "Output path") 
     :action(
         function(parsed)
@@ -300,55 +310,57 @@ lum:command("save <text> [othertext]", "Save a file")
         end
 )
 
-lum:command("install [packs...]")
+cli:command("install [packs...]")
     :option("dev", "d", "Set install mode", nil, "flag")
-    :action(function(parsed, command, lum)
+    :action(function(parsed, command, app)
         parsed.packs:for_each(function(pack) -- options like array is a table with special methods
             -- do something with each pack
         end)
     end)
 ```
 
-## 3. Parse input
+## <div id="parse-input">3. Parse input</div>
 ```lua
-lum:parse(arg) -- Parse an table like-array (space/comilla separated arguments). `arg` variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
+cli:parse(arg) -- Parse an table like-array (space/comilla separated arguments). `arg` variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
 
--- lummaner.parsed property is created after this
+-- cli.parsed property is created after this
 ```
 
-# Lummander instance methods
+# <div id="lummander-instance-methods">Lummander instance methods</div>
 
-Note: `lum` is lummander instance.
+Note: `cli` is lummander instance.
 
-## Logs methods
+## <div id="lummander-instance-log">Logs methods</div>
 
-- `lum.log:info(...)`: info log
-- `lum.log:warn(...)`: warning log
-- `lum.log:error(...)`: error log
+- `cli.log:info(...)`: info log
+- `cli.log:warn(...)`: warning log
+- `cli.log:error(...)`: error log
 
-## Advanced methods
+## <div id="lummander-instance-advanced">Advanced methods</div>
 
-- `lum:execute(cmd, [fn])`: like os.execute but returns text or callback function with value returned by cmd executed.
+- `cli:execute(cmd, [fn])`: like os.execute but returns text or callback function with value returned by cmd executed.
 
 ```lua
-lum:execute("cd", function(value)
+cli:execute("cd", function(value)
     -- do something with value or after terminal execute is finished
 end)
 
 -- this is the same:
-local value = lum:execute("cd")
+local value = cli:execute("cd")
 -- do something with value or after termnal execute is finished
 ```
 
-- `lum:find_cmd(cmd_name)`: find a lum command by name
+- `cli:find_cmd(cmd_name)`: find a cli command by name
 
-- `lum:action(cmd_name)`: set default action. String or Command. Default (help command)
+- `cli:action(cmd_name)`: set default action. String or Command. Default (help command)
 
-- <a href="#lummander-apply-theme">`lum:apply_theme(theme)`</a>: apply a theme
+- <a href="#lummander-apply-theme">`cli:apply_theme(theme)`</a>: apply a theme
 
-- <a href="#lummander-pcall">`lum.pcall(fn)`</a>: execute a function as pcall()
+- <a href="#lummander-pcall">`cli.pcall(fn)`</a>: execute a function as pcall()
 
-### <div name="#lummander-pcall">Lummander.pcall</div>
+- <a href="http://keplerproject.github.io/luafilesystem/">`cli.lfs`</a>: access to LuaFileSystem
+
+### <div id="lummander-instance-pcall">Lummander.pcall</div>
 
 - `pcall(fn)`: create a pcall instance with a function to check.
 - `pcall:pass(fn)`: function to execute if pcall success.
@@ -375,7 +387,7 @@ You can can create a custom theme for your terminal. Styles that you can apply a
 - background color: `bgblack`, `bgred`, `bggreen`, `bgyellow`, `bgblue`, `bgmagenta`, `bgcyan`, `bgwhite`
 - other: `bold`, `underlined` and `reversed`
 
-Use `lum:apply_theme(theme)` to load it.
+Use `cli:apply_theme(theme)` to load it.
 
 Example:
 ```lua
@@ -402,6 +414,23 @@ return {
 ```
 
 *Note: if you dont define some style, this will be `white` by default.*
+
+`cli.theme` print with theme color defined the text
+```lua
+cli.theme.cli.title(text)
+cli.theme.cli.text(text)
+cli.theme.cli.category(text)
+cli.theme.command.definition(text)
+cli.theme.command.description(text)
+cli.theme.command.argument(text)
+cli.theme.command.option(text)
+cli.theme.command.category(text)
+cli.theme.primary(text)
+cli.theme.secondary(text)
+cli.theme.sucess(text)
+cli.theme.warning(text)
+cli.theme.error(text)
+```
 
 # <div id="cli-to-path">Add the CLI to the PATH</div>
 ## Windows

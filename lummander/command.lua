@@ -2,8 +2,8 @@
 -- @classmod Command
 local Command = {}
 
-local utils = require "lummander.utils"
--- local Colorizer = require "lummander.colorizer"
+local ftable = require("ftypes.table")
+local fstring = require("ftypes.string")
 
 Command.__index = Command
 
@@ -39,7 +39,7 @@ function Command.new(command, config, lummander)
     cmd:__parser(command, cmd.positional_args)
     assert(cmd.name,"Command name is required")
     if(config.options)then
-        utils.table.for_each(config.options,function(opt,i,a)
+        ftable.for_each(config.options,function(opt,i,a)
             cmd:option(opt.long, opt.short, opt.description, opt.transform, opt.type, opt.default)
         end)
     end
@@ -85,7 +85,7 @@ end
 -- @tparam string option string including - or --
 -- @return Option
 function Command:has_option(option)
-    return utils.table.find(self.options,function(value, index, array)
+    return ftable.find(self.options,function(value, index, array)
         if(value.long == opt or value.short == option) then return true end
     end)
 end
@@ -94,7 +94,7 @@ end
 -- @treturn table
 function Command:names()
     local names = {self.name}
-    utils.table.for_each(self.alias, function(alias, index, array)
+    ftable.for_each(self.alias, function(alias, index, array)
         table.insert(names, alias)
     end)
     return names
@@ -177,7 +177,7 @@ end
 function Command:usage_extended(lummander_tag)
     local usage = self.lummander.theme.command.category.color("Usage: ").. self.lummander.theme.command.definition.color((lummander_tag and lummander_tag .." " or "") ..self:usage_cmd()) --.." => " .. self.description .. "\n"
     usage = usage .. self.lummander.theme.command.category.color("\nName: ") .. self.name
-    if(#self.alias > 0) then usage = usage .. self.lummander.theme.command.category.color("; alias: ") .. utils.table.join(self.alias, ", ") end
+    if(#self.alias > 0) then usage = usage .. self.lummander.theme.command.category.color("; alias: ") .. ftable.join(self.alias, ", ") end
     usage = usage .. "\n"
     if(#self.description > 0) then usage = usage.. self.lummander.theme.command.category.color("Description: ") .. self.description .. "\n" end 
     if (#self.arguments > 0) then
@@ -188,7 +188,7 @@ function Command:usage_extended(lummander_tag)
     end
     if (#self.options > 0) then
         usage = usage .. self.lummander.theme.command.category.color("Options:\n")
-        utils.table.for_each(self.options, function(opt, index, t)
+        ftable.for_each(self.options, function(opt, index, t)
             usage = usage .. "  " .. opt:render_extended() .. "\n"
         end)
     end
@@ -204,7 +204,7 @@ function Command:usage_cmd()
         end
     end
     if (#self.options > 0) then
-        utils.table.for_each(self.options,function(opt, index, t)
+        ftable.for_each(self.options,function(opt, index, t)
             usage = usage .. opt:render() .. " "
         end)
     end
@@ -224,7 +224,7 @@ function Command:check_parsed(parsed)
         end
     end
     local err = "Default action has required arguments what are not defined: "
-    utils.table.for_each(required, function(value, index, array)
+    ftable.for_each(required, function(value, index, array)
         err = err .. value.name .. ", "
     end)
     if(not(#required == 0))then self.lummander:error(err) end
@@ -235,8 +235,8 @@ end
 function Command:__parser(command, defaults)
     local result = {}
     defaults = defaults or {}
-    local inputs = utils.string.split(command,"%S+")
-    utils.table.for_each(inputs, function(input, index)
+    local inputs = fstring.split(command,"%S+")
+    ftable.for_each(inputs, function(input, index)
         local word = input:match("[%w_-]+")
         local config = defaults[word]
         if(not(type(config) == "table"))then

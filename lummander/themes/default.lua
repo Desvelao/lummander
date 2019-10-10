@@ -12,7 +12,7 @@ return {
         category = "yellow"
     },
     primary = "green",
-    secondary = "red",
+    secondary = "yellow",
     success = "green",
     warning = "yellow",
     error = "red"
