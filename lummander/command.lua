@@ -2,8 +2,8 @@
 -- @classmod Command
 local Command = {}
 
-local ftable = require("ftypes.table")
-local fstring = require("ftypes.string")
+local ftable = require("f.table")
+local fstring = require("f.string")
 
 Command.__index = Command
 

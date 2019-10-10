@@ -1,7 +1,7 @@
 --- Parsed. It's a table with a field by each argument and option defined in found command.
 -- @classmod Parsed
 local chalk = require("chalk")
-local ftable = require("ftypes.table")
+local ftable = require("f.table")
 local Parsed = {}
 Parsed.__index = Parsed
 

@@ -5,8 +5,8 @@ Lummander.__index = Lummander
 
 local Command = require "lummander.command"
 local chalk = require "chalk"
-local ftable = require("ftypes.table")
-local fstring = require("ftypes.string")
+local ftable = require("f.table")
+local fstring = require("f.string")
 local Pcall = require"lummander.pcall"
 local Parsed = require "lummander.parsed"
 local ThemeColor = require"lummander.themecolor"
