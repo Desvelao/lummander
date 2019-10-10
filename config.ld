@@ -1,5 +1,5 @@
 project = 'Lummander'
-description = 'Ceate a simple CLI with Lua'
+description = 'Create a simple CLI app with Lua'
 full_description = [[
 ]]
 title = 'Lummander - Simple CLI with Lua'

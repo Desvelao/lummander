@@ -12,8 +12,8 @@ description = {
 dependencies = {
    "lua>=5.1",
    "luafilesystem>=1.7.0",
-   "chalk=dev-1",
-   "ftypes=dev-1"
+   "chalk>=0.1.0",
+   "f=dev-1"
 }
 build = {
    type = "builtin",
