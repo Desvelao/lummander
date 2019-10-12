@@ -70,7 +70,7 @@
 <p>- <a href="#features">Features</a>
 - <a href="#installation">Installation</a>
 - <a href="#usage">Usage</a>
-- <a href="#create-instance">Create a instance</a>
+- <a href="#create-instance">Create an instance</a>
 - <a href="#add-commands">Add commands</a></p>
 
 <pre>
@@ -124,8 +124,9 @@ luarocks install lummander
         title = <span class="string">"My Custom App"</span>, <span class="comment">-- &lt;string&gt; title for CLI. Default: ""
 </span>        tag = <span class="string">"myapp"</span>, <span class="comment">-- &lt;string&gt; CLI Command to execute your program. Default: "".
 </span>        description = <span class="string">"My App description"</span>, <span class="comment">-- &lt;string&gt; CLI description. Default: ""
-</span>        version = <span class="string">"0.1.1"</span> <span class="comment">-- &lt;string&gt; CLI version. Default: "0.1.0"
+</span>        version = <span class="string">"0.1.1"</span>, <span class="comment">-- &lt;string&gt; CLI version. Default: "0.1.0"
 </span>        author = <span class="string">"Myself"</span>, <span class="comment">-- &lt;string&gt; author. Default: ""
+</span>        root_path = <span class="string">"/path/to/folder/contains/this/file"</span>, <span class="comment">-- &lt;string&gt; root_path. Default "". Concat this path to load commands of a subfolder
 </span>        theme = <span class="string">"acid"</span>, <span class="comment">-- Default = "default". "default" and "acid" are built-in themes
 </span>        flag_prevent_help = <span class="keyword">false</span> <span class="comment">-- &lt;boolean&gt; Prevent help message if not command found. Default: false
 </span>    }
@@ -142,7 +143,8 @@ cli:command(<span class="string">"sum &lt;value1&gt; &lt;value2&gt;"</span>, <sp
     :option(
         <span class="string">"option2"</span>,<span class="string">"p"</span>,<span class="string">"Option2 description"</span>,<span class="keyword">nil</span>,<span class="string">"normal"</span>,<span class="string">"option2_default_value"</span>)
     :action(<span class="keyword">function</span>(parsed, command, app)
-        <span class="global">print</span>(<span class="string">""</span>.. parsed.value1.. <span class="string">"+"</span>..parsed.value2..<span class="string">" = "</span> .. (parsed.value1 + parsed.value2))
+        <span class="global">print</span>(<span class="string">""</span>.. parsed.value1.. <span class="string">"+"</span>..parsed.value2..<span class="string">" = "</span> ..
+              <span class="global">tostring</span>(<span class="global">tonumber</span>(parsed.value1) + <span class="global">tonumber</span>(parsed.value2)))
     <span class="keyword">end</span>)
 
 <span class="comment">-- Parse and execute the command wrote
@@ -150,7 +152,7 @@ cli:command(<span class="string">"sum &lt;value1&gt; &lt;value2&gt;"</span>, <sp
 </pre>
 
 
-<h1><div id="create-instance">Create a instance</div></h1>
+<h1><div id="create-instance">Create an instance</div></h1>
 
 
 <pre>
@@ -162,6 +164,7 @@ cli:command(<span class="string">"sum &lt;value1&gt; &lt;value2&gt;"</span>, <sp
 </span>    description = <span class="string">"My App description"</span>, <span class="comment">-- &lt;string&gt; CLI description. Default: ""
 </span>    version = <span class="string">"0.1.1"</span>, <span class="comment">-- define cli version
 </span>    author = <span class="string">"Myself"</span>, <span class="comment">-- &lt;string&gt; author. Default: ""
+</span>    root_path = <span class="string">"/path/to/folder/contains/this/file"</span>, <span class="comment">-- &lt;string&gt; root_path. Default "". Concat this path to load commands of a subfolder
 </span>    theme = <span class="string">"acid"</span>, <span class="comment">-- Default = "default". "default" and "acid" are built-in themes
 </span>    flag_prevent_help = <span class="keyword">false</span> <span class="comment">-- prevent show help when :parse() doesn't find a valid command to execute
 </span>}
@@ -205,7 +208,8 @@ cli:command(schema, description, config)
 <p>Arguments:
 - <argument_name> - Required argument
 - [argument<em>name] - Optional argument
-- [argument</em>name...] - Optional arguments (array)</p>
+- [argument</em>name...] - Optional arguments (array)
+- [...argument_name] - Optional arguments (array)</p>
 
 <p><a name="Command_methods"></a></p>
 <h2>Command methods</h2>
@@ -377,7 +381,7 @@ cli:command(<span class="string">"time"</span>, <span class="string">"Show time"
             <span class="comment">-- parsed is a table that includes a field called "name" due to &lt;name&gt; at command schema
 </span>            <span class="comment">-- &lt;name&gt; is a required positional argument and is needed to trigger this function
 </span>            <span class="comment">-- parsed = { name }
-</span>            <span class="global">print</span>(<span class="string">"Hi "</span> ..<span class="global">tostring</span>(parsed.name))
+</span>            <span class="global">print</span>(<span class="string">"Hi "</span> .. parsed.name)
         <span class="keyword">end</span>
 )
 
@@ -394,7 +398,7 @@ cli:command(<span class="string">"hi &lt;name&gt;"</span>, <span class="string">
             <span class="comment">-- parsed = {name, hello}
 </span>            <span class="keyword">local</span> saludation = <span class="string">"Hi"</span>
             <span class="keyword">if</span>(parsed.hello) <span class="keyword">then</span> saludation = <span class="string">"Hello"</span> <span class="keyword">end</span>
-            <span class="global">print</span>(saludation .. <span class="string">" "</span> ..<span class="global">tostring</span>(parsed.name))
+            <span class="global">print</span>(saludation .. <span class="string">" "</span> .. parsed.name)
             <span class="comment">-- <code>hi Lummander</code> =&gt; Hi Lummander
 </span>            <span class="comment">-- <code>hi Lummander -h</code> =&gt; Hello Lummander
 </span>            <span class="comment">-- <code>hi Lummander --hello</code> =&gt; Hello Lummander
@@ -405,7 +409,7 @@ cli:command(<span class="string">"hi &lt;name&gt;"</span>, <span class="string">
 </span><span class="comment">-- Argumments:
 </span>    <span class="comment">-- - cmd: hi
 </span>    <span class="comment">-- - req_arg1: text (closed in &lt;&gt; means is required)
-</span>    <span class="comment">-- - opt_arg2: othertext (closed in [] means is required)
+</span>    <span class="comment">-- - opt_arg2: othertext (closed in [] means is optional)
 </span>    <span class="comment">-- - option: -o, --output
 </span>
 cli:command(<span class="string">"save &lt;text&gt; [othertext]"</span>, <span class="string">"Save a file"</span>)
@@ -425,7 +429,7 @@ cli:command(<span class="string">"save &lt;text&gt; [othertext]"</span>, <span c
 cli:command(<span class="string">"install [packs...]"</span>)
     :option(<span class="string">"dev"</span>, <span class="string">"d"</span>, <span class="string">"Set install mode"</span>, <span class="keyword">nil</span>, <span class="string">"flag"</span>)
     :action(<span class="keyword">function</span>(parsed, command, app)
-        parsed.packs:for_each(<span class="keyword">function</span>(pack) <span class="comment">-- options like array is a table with special methods
+        parsed.packs:for_each(<span class="keyword">function</span>(pack) <span class="comment">-- options like array is a table with special methods. See https://desvelao.github.io/f/classes/ftable.html
 </span>            <span class="comment">-- do something with each pack
 </span>        <span class="keyword">end</span>)
     <span class="keyword">end</span>)
@@ -436,7 +440,7 @@ cli:command(<span class="string">"install [packs...]"</span>)
 <h2><div id="parse-input">3. Parse input</div></h2>
 
 <pre>
-cli:parse(arg) <span class="comment">-- Parse an table like-array (space/comilla separated arguments). <code>arg</code> variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
+cli:parse(arg) <span class="comment">-- Parse a table like-array (space/comilla separated arguments). <code>arg</code> variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
 </span>
 <span class="comment">-- cli.parsed property is created after this</span>
 </pre>
@@ -465,12 +469,12 @@ cli:parse(arg) <span class="comment">-- Parse an table like-array (space/comilla
 
 <pre>
 cli:execute(<span class="string">"cd"</span>, <span class="keyword">function</span>(value)
-    <span class="comment">-- do something with value or after terminal execute is finished
+    <span class="comment">-- do something with value after terminal executution is finished
 </span><span class="keyword">end</span>)
 
-<span class="comment">-- this is the same:
+<span class="comment">-- same to:
 </span><span class="keyword">local</span> value = cli:execute(<span class="string">"cd"</span>)
-<span class="comment">-- do something with value or after termnal execute is finished</span>
+<span class="comment">-- do something with value or after terminal executution is finished</span>
 </pre>
 
 
@@ -590,7 +594,7 @@ cli.theme.<span class="global">error</span>(text)
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2019-10-10 16:45:07 </i>
+<i style="float:right;">Last updated 2019-10-12 17:17:18 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
