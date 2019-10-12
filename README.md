@@ -5,7 +5,7 @@ Create a simple command-line interface (CLI) application with Lua. It's inspired
 - <a href="#features">Features</a>
 - <a href="#installation">Installation</a>
 - <a href="#usage">Usage</a>
-- <a href="#create-instance">Create a instance</a>
+- <a href="#create-instance">Create an instance</a>
 - <a href="#add-commands">Add commands</a>
     - <a href="#add-commands-using-lummander">a) Add command using lummander instance methods</a>
         - <a href="#command-schema">Command schema</a>
@@ -73,7 +73,7 @@ cli:command("sum <value1> <value2>", "Sum 2 values")
 cli:parse(arg) -- parse arg and execute if a command was written
 ```
 
-# <div id="create-instance">Create a instance</div>
+# <div id="create-instance">Create an instance</div>
 
 ```lua
 local Lummander = require"lummander"
@@ -297,7 +297,7 @@ cli:command("hi <name>", "Say hello/hi to someone")
 -- Argumments:
     -- - cmd: hi
     -- - req_arg1: text (closed in <> means is required)
-    -- - opt_arg2: othertext (closed in [] means is required)
+    -- - opt_arg2: othertext (closed in [] means is optional)
     -- - option: -o, --output
 
 cli:command("save <text> [othertext]", "Save a file")
@@ -317,7 +317,7 @@ cli:command("save <text> [othertext]", "Save a file")
 cli:command("install [packs...]")
     :option("dev", "d", "Set install mode", nil, "flag")
     :action(function(parsed, command, app)
-        parsed.packs:for_each(function(pack) -- options like array is a table with special methods
+        parsed.packs:for_each(function(pack) -- options like array is a table with special methods. See https://desvelao.github.io/f/classes/ftable.html
             -- do something with each pack
         end)
     end)
@@ -346,12 +346,12 @@ Note: `cli` is lummander instance.
 
 ```lua
 cli:execute("cd", function(value)
-    -- do something with value or after terminal execute is finished
+    -- do something with value after terminal executution is finished
 end)
 
--- this is the same:
+-- same to:
 local value = cli:execute("cd")
--- do something with value or after termnal execute is finished
+-- do something with value or after terminal executution is finished
 ```
 
 - `cli:find_cmd(cmd_name)`: find a cli command by name
