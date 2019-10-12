@@ -48,6 +48,7 @@ local cli = Lummander.new{
         description = "My App description", -- <string> CLI description. Default: ""
         version = "0.1.1", -- <string> CLI version. Default: "0.1.0"
         author = "Myself", -- <string> author. Default: ""
+        root_path = "/path/to/folder/contains/this/file", -- <string> root_path. Default "". Concat this path to load commands of a subfolder
         theme = "acid", -- Default = "default". "default" and "acid" are built-in themes
         flag_prevent_help = false -- <boolean> Prevent help message if not command found. Default: false
     }
@@ -83,6 +84,7 @@ local cli = Lummander.new{
     description = "My App description", -- <string> CLI description. Default: ""
     version = "0.1.1", -- define cli version
     author = "Myself", -- <string> author. Default: ""
+    root_path = "/path/to/folder/contains/this/file", -- <string> root_path. Default "". Concat this path to load commands of a subfolder
     theme = "acid", -- Default = "default". "default" and "acid" are built-in themes
     flag_prevent_help = false -- prevent show help when :parse() doesn't find a valid command to execute
 }
@@ -121,6 +123,7 @@ Arguments:
 - <argument_name> - Required argument
 - [argument_name] - Optional argument
 - [argument_name...] - Optional arguments (array)
+- [...argument_name] - Optional arguments (array)
 
 ## Command methods
 
@@ -266,7 +269,7 @@ cli:command("hi <name>", "Say hi to someone")
             -- parsed is a table that includes a field called "name" due to <name> at command schema
             -- <name> is a required positional argument and is needed to trigger this function
             -- parsed = { name }
-            print("Hi " ..tostring(parsed.name))
+            print("Hi " .. parsed.name)
         end
 )
 
@@ -283,7 +286,7 @@ cli:command("hi <name>", "Say hello/hi to someone")
             -- parsed = {name, hello}
             local saludation = "Hi"
             if(parsed.hello) then saludation = "Hello" end
-            print(saludation .. " " ..tostring(parsed.name))
+            print(saludation .. " " .. parsed.name)
             -- `hi Lummander` => Hi Lummander
             -- `hi Lummander -h` => Hello Lummander
             -- `hi Lummander --hello` => Hello Lummander
@@ -322,7 +325,7 @@ cli:command("install [packs...]")
 
 ## <div id="parse-input">3. Parse input</div>
 ```lua
-cli:parse(arg) -- Parse an table like-array (space/comilla separated arguments). `arg` variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
+cli:parse(arg) -- Parse a table like-array (space/comilla separated arguments). `arg` variable in Lua is an array that contains arguments passed when it executed. This is REQUIRED. Execute a command if is found.
 
 -- cli.parsed property is created after this
 ```
