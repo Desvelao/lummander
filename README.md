@@ -26,7 +26,7 @@ Create a simple command-line interface (CLI) application with Lua. It's inspired
 - Define required positional arguments, optional or flagged options for a command.
 - Add commands directly to lummander instance or from a folder.
 
-*Require [LuaFileSystem](https://keplerproject.github.io/luafilesystem/)*
+*Require [LuaFileSystem](https://keplerproject.github.io/luafilesystem/)*.
 
 # <div id="installation">Installation</div>
 
